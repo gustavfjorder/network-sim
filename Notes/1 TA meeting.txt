@@ -1,0 +1,4 @@
+routing tables - the routers don't have global info initially, they will run a local shortest path algorithm. Don't use a package.
+
+IETF - internet engineering task force (useful for details of implementation of network, such as parameters)
+	Like timeout threshhold
