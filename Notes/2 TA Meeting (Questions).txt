@@ -1,5 +1,5 @@
 Should we have the packet in the link for a while?
-Are links in both directions?
+Are links in both directions? Duplex?
 Are hosts connected to just one router?
 Buffer of router?
 Loss in links?
