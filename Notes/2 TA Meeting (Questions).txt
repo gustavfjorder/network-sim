@@ -1,13 +1,16 @@
-Should we have the packet in the link for a while?
-Are links in both directions? Duplex?
-Are hosts connected to just one router?
-Buffer of router?
-Loss in links?
+Should we have the packet in the link for a while? Shooud be fine
+Are links in both directions? Duplex? Yes. Throughput is separated in both directions.
+Are hosts connected to just one router? Yes
+Buffer of router? None.
+Loss in links? Up to us.
 Link propagation: https://simpy.readthedocs.io/en/latest/examples/latency.html
-Time as integers (microsecond) or floats (seconds)?
-Router receives and sends and processes at the same time? 
-Do we account for the time it takes to send/receive a packet (like receceiver getting it, putting it in the buffer, and then sending again)?
+Time as integers (microsecond) or floats (seconds)? Millisecond
+Router receives and sends and processes at the same time? Assume processing is 0
+Do we account for the time it takes to send/receive a packet (like receceiver getting it, putting it in the buffer, and then sending again)? Account for it. Both sent and received, must receive whole packet
 Who does the graphing? (Flow class?)
-Can there be two flows from the same source?
-What is the simplest thing we should code right now?
-What is a link buffer?
+Flow? Have a separate class. Flow does the congestion control, not the host.
+Can there be two flows from the same source? Won't be in test cases.
+What is the simplest thing we should code right now? Test case 0 with simpy.
+Are packet sizes fixed? You can assume 1KB. Say ACK 64 bytes. Just pick reasonable numbers.
+3-way handshake
+What is a link buffer? The only buffer. 
