@@ -4,6 +4,11 @@ FLOW_GENERATED_PACKET_SIZE = 1024
 # may assume that flow-generated data packets have a fixed size of 1024 bytes,
 # including any packet headers or trailers
 
+# For Link
+import queue
+
+# By default, if a function has a yield statement in it, it is a generator.
+
 class Host:
     def __init__(self,env,name,port):
         self.link = None
@@ -53,44 +58,61 @@ class Packet:
     def __init__(self,env,destination,information):
         self.destination = destination
         self.information = information
-        self.size = len(information)
+        self.size = len(information)   # bits? bytes?
 
 class Link: #use shared resource for the link?
     def __init__(self, env, delay, bufferSize, rate):
+        self.env = env
         self.rate = rate  # Mbps
-        self.buffer = []
+        # An infinite size queue. We internally enforce limits
+        self.buffer = queue.Queue()
         self.propagationDelay = delay  # ms
         self.bufferSize = bufferSize
         self.source = None
         self.destination = None
 
-    def receivePacket(packet):
-        # wait the amount of time it would take to transmit the packet
-        # add the packet to the Link. Then after delay time, pass to the next
-        # router. May need multiple functions. And deal with both directions of
-        # link.
-        self.enqueue()
-        pass
+    def put(self, packet):
+        # Receives a packet.
+        #
+        # Put the packet in the buffer. Then wait the transmissionTime for the
+        # packet to finish.
+        #
+        # Warning: This should not get called by two things, because the
+        # transmission delays will get messed up, probably.
+        #
+        # The generator for Link will deal with the link's side of transmission
+        # delay and propagation delay.
 
-    def enqueue(self, packet):
-        # adds packet to buffer
-        pass
+        # Put into the buffer (run deals with transmission delay, so do this
+        # first).
+        self.buffer.put(packet)
+
+        # Wait transmissionTime of the packet, to hold back source.
+        transmissionDelay = packet.size / self.rate
+        yield self.env.timeout(transmissionDelay) # Not sure if yield is right
 
     def run(self):
         while True:
-            if #buffer not empty
-                #send a packet
-                propagate
-            pass
+            # If buffer not empty, send the packets in buffer
+            if not self.buffer.empty()
+                # After propagationDelay, arrive
+                # at destination.
+                # Do for all packets in the buffer, after waiting
+                # transmission delay time.
+                while not self.buffer.empty():
+                    # Get packet left
+                    packet = self.buffer.get()
 
-    def propagate(self, packet):
-        # first wait transmission delay (packet size / rate)
-        # then make an event that after propagation delay, passes the packet to
-        # the destination. However, doesn't just wait and hold up other
-        # packets
-        # Finally, waits the transmission delay to arrive at the destination.
-        # OR put in a waiting area
-        transmissionDelay = packet.size / self.rate
+                    # Wait transmissionDelay
+                    transmissionDelay = packet.size / self.rate
+                    yield self.env.timeout(transmissionDelay)
+
+                    # Pass to router after propagationDelay time
+                    simpy.util.start_delayed(self.env, \
+                                         self.destination.put(packet), \
+                                         self.propagationDelay)
+            else: # If buffer is empty, check again after 1 ms.
+                yield self.env.timeout(1)
 
 
         #need to simpy this
