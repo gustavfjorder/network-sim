@@ -21,8 +21,9 @@ class Host:
         # From flow to link
         return
 
-    def receive(self, packet):
-        # From link to flow
+    def put(self, packet):
+        # Receive a packet from link
+        # Pass it to flow
         # receive ack OR send ack if it isn't an ack
         pass
 
@@ -38,10 +39,8 @@ class Router(algorith?):
         self.queue = []
         self.links = []
 
-    def receivePacket(packet):
-        return
-
-    def sendPacket(packet):
+    def put(self, packet):
+        # Receive a packet
         return
 
     def receiveAndProcess():
@@ -60,16 +59,17 @@ class Packet:
         self.information = information
         self.size = len(information)   # bits? bytes?
 
-class Link: #use shared resource for the link?
+class Link:
     def __init__(self, env, delay, bufferSize, rate):
         self.env = env
         self.rate = rate  # Mbps
-        # An infinite size queue. We internally enforce limits
+        # An infinite size queue. We internally enforce limits.
         self.buffer = queue.Queue()
         self.propagationDelay = delay  # ms
-        self.bufferSize = bufferSize
-        self.source = None
-        self.destination = None
+        self.bufferSize = bufferSize   # bit/bytes?
+        self.bufferUsed = 0;           # bit/bytes?
+        self.source = None             # a host or router
+        self.destination = None        # a host or router
 
     def put(self, packet):
         # Receives a packet.
@@ -84,8 +84,12 @@ class Link: #use shared resource for the link?
         # delay and propagation delay.
 
         # Put into the buffer (run deals with transmission delay, so do this
-        # first).
-        self.buffer.put(packet)
+        # first) if buffer not full. Otherwise, drop the packet.
+        if self.bufferUsed + packet.size <= self.bufferSize:
+            self.buffer.put(packet)
+            self.bufferUsed += packet.size
+        else:
+            return     # Effectively drop the packet
 
         # Wait transmissionTime of the packet, to hold back source.
         transmissionDelay = packet.size / self.rate
@@ -95,19 +99,21 @@ class Link: #use shared resource for the link?
         while True:
             # If buffer not empty, send the packets in buffer
             if not self.buffer.empty()
-                # After propagationDelay, arrive
-                # at destination.
-                # Do for all packets in the buffer, after waiting
-                # transmission delay time.
+                # After propagation plus transmission delay, arrive at
+                # destination.  Do for all packets in the buffer, spacing
+                # departures by transmission delay.
                 while not self.buffer.empty():
                     # Get packet left
                     packet = self.buffer.get()
 
-                    # Wait transmissionDelay
+                    # Wait transmission delay
                     transmissionDelay = packet.size / self.rate
                     yield self.env.timeout(transmissionDelay)
+                    # The packet has been sent, so buffer has been freed
+                    self.bufferUsed -= packet.size;
 
-                    # Pass to router after propagationDelay time
+                    # Pass to router after propagationDelay time (but don't
+                    # wait)
                     simpy.util.start_delayed(self.env, \
                                          self.destination.put(packet), \
                                          self.propagationDelay)
