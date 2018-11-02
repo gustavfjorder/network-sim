@@ -59,6 +59,11 @@ class Packet:
         self.information = information
         self.size = len(information)   # bits? bytes?
 
+        # something that the lecture notes say each packet has in the header
+        # to discuss
+        self.sequenceNumber = None
+        self.ackNumber = None
+
 class Link:
     def __init__(self, env, delay, bufferSize, rate):
         self.env = env
@@ -71,6 +76,8 @@ class Link:
         self.source = None             # a host or router
         self.destination = None        # a host or router
 
+    # This is a generator, not a function so must be called as such
+    # or created as a simpy process
     def put(self, packet):
         # Receives a packet.
         #
@@ -89,12 +96,15 @@ class Link:
             self.buffer.put(packet)
             self.bufferUsed += packet.size
         else:
-            return     # Effectively drop the packet
+            pass     # Effectively drop the packet
 
         # Wait transmissionTime of the packet, to hold back source.
         transmissionDelay = packet.size / self.rate
         yield self.env.timeout(transmissionDelay) # Not sure if yield is right
 
+    # This is a generator, not a function so must be called as such
+    # or created as a simpy process
+    # Warning: relies on host or router 'put' is a generator, not a function
     def run(self):
         while True:
             # If buffer not empty, send the packets in buffer
