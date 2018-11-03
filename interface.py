@@ -1,19 +1,21 @@
 #import notes
 import json
-from pprint import pprint
 
 def get_config(filename):
 # Takes filename (json) file and outputs a list of hosts, routers, links, flows.
-# The lists are lists of objects.
-
-    with open(filename) as f:
-        data = json.load(f)
-
-    print(data)
-
+    try:
+        with open(filename) as f:
+            data = json.load(f)
+    except FileNotFoundError as error:
+        print("File not found")
+        data = None
+    return data
 
 def main():
-    get_config("test0.json")
+    input_file = input("Test name: ")
+    test_data = get_config(input_file)
+    if test_data != None:
+        print(test_data)
 
 if __name__ == "__main__":
     main()
