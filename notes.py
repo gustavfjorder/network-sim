@@ -4,9 +4,6 @@ FLOW_GENERATED_PACKET_SIZE = 1024
 # may assume that flow-generated data packets have a fixed size of 1024 bytes,
 # including any packet headers or trailers
 
-# For Link
-import queue
-
 # By default, if a function has a yield statement in it, it is a generator.
 
 # Note: For acknowledgements, we should be saying I'm expecting this packet next
@@ -74,7 +71,7 @@ class Link:
         self.env = env
         self.rate = rate  # Mbps
         # An infinite size queue. We internally enforce limits.
-        self.buffer = queue.Queue()    #
+        self.buffer = collections.deueue()
         self.propagationDelay = delay  # ms
         self.bufferSize = bufferSize   # bit/bytes?
         self.bufferUsed = 0;           # bit/bytes?
@@ -98,7 +95,7 @@ class Link:
         # Put into the buffer (run deals with transmission delay, so do this
         # first) if buffer not full. Otherwise, drop the packet.
         if self.bufferUsed + packet.size <= self.bufferSize:
-            self.buffer.put(packet)
+            self.buffer.append(packet)
             self.bufferUsed += packet.size
         else:
             pass     # Effectively drop the packet
@@ -115,9 +112,9 @@ class Link:
             # If buffer not empty, send all the packets in buffer.
             # After propagation delay (plus transmission), they will arrive.
             # Space departures by transmission delay.
-            while not self.buffer.empty():
-                # Get packet left
-                packet = self.buffer.get()
+            while self.buffer:
+                # Get packet (popleft is FIFO)
+                packet = self.buffer.popleft()
 
                 # Wait transmission delay
                 transmissionDelay = packet.size / self.rate
@@ -132,8 +129,8 @@ class Link:
                 simpy.util.start_delayed(self.env, \
                                      self.destination.put(packet), \
                                      self.propagationDelay)
-            # Check again after 1 ms.
-            yield self.env.timeout(1)
+            # Check again after 0.1 ms.
+            yield self.env.timeout(0.1)
 
 
         #need to simpy this
