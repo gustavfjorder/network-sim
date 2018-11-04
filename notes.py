@@ -12,6 +12,8 @@ import queue
 # Note: For acknowledgements, we should be saying I'm expecting this packet next
 # instead of saying I just received this packet
 # packet 1 received. ACK: expecting packet 2 next.
+# Sorry, above is only true for Tahoe, and different for Reno
+# need to discuss this. Look at page 92 of WP
 class Host:
     def __init__(self,env,name,port):
         self.link = None
