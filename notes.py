@@ -69,7 +69,7 @@ class Link:
         self.env = env
         self.rate = rate  # Mbps
         # An infinite size queue. We internally enforce limits.
-        self.buffer = queue.Queue()
+        self.buffer = queue.Queue()    #
         self.propagationDelay = delay  # ms
         self.bufferSize = bufferSize   # bit/bytes?
         self.bufferUsed = 0;           # bit/bytes?
@@ -77,7 +77,7 @@ class Link:
         self.destination = None        # a host or router
 
     # This is a generator, not a function so must be called as such
-    # or created as a simpy process
+    # or created as a simpy process.
     def put(self, packet):
         # Receives a packet.
         #
@@ -103,32 +103,32 @@ class Link:
         yield self.env.timeout(transmissionDelay) # Not sure if yield is right
 
     # This is a generator, not a function so must be called as such
-    # or created as a simpy process
+    # or created as a simpy process.
     # Warning: relies on host or router 'put' is a generator, not a function
     def run(self):
         while True:
-            # If buffer not empty, send the packets in buffer
-            if not self.buffer.empty()
-                # After propagation plus transmission delay, arrive at
-                # destination.  Do for all packets in the buffer, spacing
-                # departures by transmission delay.
-                while not self.buffer.empty():
-                    # Get packet left
-                    packet = self.buffer.get()
+            # If buffer not empty, send all the packets in buffer.
+            # After propagation delay (plus transmission), they will arrive.
+            # Space departures by transmission delay.
+            while not self.buffer.empty():
+                # Get packet left
+                packet = self.buffer.get()
 
-                    # Wait transmission delay
-                    transmissionDelay = packet.size / self.rate
-                    yield self.env.timeout(transmissionDelay)
-                    # The packet has been sent, so buffer has been freed
-                    self.bufferUsed -= packet.size;
+                # Wait transmission delay
+                transmissionDelay = packet.size / self.rate
+                yield self.env.timeout(transmissionDelay)
+                # The packet has been sent, so buffer has been freed
+                self.bufferUsed -= packet.size;
 
-                    # Pass to router after propagationDelay time (but don't
-                    # wait)
-                    simpy.util.start_delayed(self.env, \
-                                         self.destination.put(packet), \
-                                         self.propagationDelay)
-            else: # If buffer is empty, check again after 1 ms.
-                yield self.env.timeout(1)
+                # Pass to router after propagationDelay time (but don't
+                # wait).
+                # start_delayed is like process, but will start the process
+                # after a time delay.
+                simpy.util.start_delayed(self.env, \
+                                     self.destination.put(packet), \
+                                     self.propagationDelay)
+            # Check again after 1 ms.
+            yield self.env.timeout(1)
 
 
         #need to simpy this
