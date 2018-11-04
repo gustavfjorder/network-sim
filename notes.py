@@ -9,6 +9,9 @@ import queue
 
 # By default, if a function has a yield statement in it, it is a generator.
 
+# Note: For acknowledgements, we should be saying I'm expecting this packet next
+# instead of saying I just received this packet
+# packet 1 received. ACK: expecting packet 2 next.
 class Host:
     def __init__(self,env,name,port):
         self.link = None
