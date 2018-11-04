@@ -69,8 +69,10 @@ class Tahoe:
     def run(self):
         while not self.done:
             self.put()
-            if receive: # interrupt
-                self.receive(packet)
-            yield??
-            else:
-                self.retransmit
+            try:
+                yield self.env.process(self.env.timeout(self.ackTimeOut))
+                self.put() #retransmit
+            except simpy.Interrupt:
+                receive(Packet)
+
+
