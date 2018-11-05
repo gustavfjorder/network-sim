@@ -19,7 +19,7 @@ class Tahoe:
     def put(self, packet): #receiving
         nextExpectedPacketNumber = packetProcess(packet)
         
-        if not nextExpectedPacketNumber:
+        if nextExpectedPacketNumber > self.num_packets:
             self.done = 1
         else:
             setWindow(nextExpectedPacketNumber)
