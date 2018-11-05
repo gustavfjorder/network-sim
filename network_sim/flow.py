@@ -73,6 +73,9 @@ class Tahoe:
                 yield self.env.process(self.env.timeout(self.ackTimeOut))
                 self.put() #retransmit
             except simpy.Interrupt:
-                receive(Packet)
+                receive(Packet) #how do we transfer the acknowledgement packet here!
 
-
+# still figuring out
+def ack(env, car):
+    car.receive()
+    car.action.interrupt()
