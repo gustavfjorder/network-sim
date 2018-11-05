@@ -1,6 +1,5 @@
-import link, flow, host
+import link, flow
 import json
-import flow.py
 
 # Takes filename (json) file and outputs a list of hosts, routers, links, flows.
 def get_config(env,filename):
@@ -40,6 +39,7 @@ def get_config(env,filename):
         test_data['flows'][flow]['flow_start'])
         flows.append(f)
 
+    print(hosts, links, flows)
     return (hosts, links, flows)
 
 
