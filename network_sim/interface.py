@@ -1,6 +1,6 @@
 from link import Link
 from flow import Tahoe
-from host import Host
+from hosts import Host
 import json
 
 # Takes filename (json) file and outputs a list of hosts, routers, links, flows.
