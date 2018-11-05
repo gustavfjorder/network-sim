@@ -1,23 +1,47 @@
+from packets import Packet
+
+data_size = 1024
+ackTimeOut = 10
+
+#env.now() to track RTT time
+
 class Tahoe:
     """
     #Implementation of Go Back N
     """
-    def __init__(self,env,source,destination,size,windowSize,ackTimeOut):
+    def __init__(self,env,source,destination,size,windowSize):
         self.env = env
         self.source = source
         self.destination = destination
-        self.packets = makePackets(size) #expecting a indexable list as implementation
+        self.packets = self.makePackets(size) #expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
         self.windowSize = windowSize
         self.ackTimeOut = ackTimeOut
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) #no zero indexing here
+        self.RTT = 3
+        
+    def makePackets(size):
+        size = size * 1024 * 1024# In bytes
+        N = size / data_size
+
+        output = []
+        
+        for i in range(N):
+            output.append(Packet(self.source,self.destination,i+1, 'Data', data_size))
+
+        return output
+
+    def packetProcess(packet):
+        assert packet.type == 'ACK'
+        return packet.ackData['Tahoe'] # should be an int
+
 
     def setWindow(start):
         self.windowIndex = (start - 1, min(nextExpectedPacketNumber - 1 + self.windowSize - 1, self.num_packets - 1))
 
     def put(self, packet): #receiving
-        nextExpectedPacketNumber = packetProcess(packet)
+        nextExpectedPacketNumber = self.packetProcess(packet)
         
         if nextExpectedPacketNumber > self.num_packets:
             self.done = 1
@@ -29,7 +53,7 @@ class Tahoe:
         for i in range(start, end + 1):
             source.put(self.packets[i])
 
-    def timeOut(self, time=self.ackTimeOut):
+    def timeOut(self,time):
         yield self.env.timeout(time)
 
     def run(self):
