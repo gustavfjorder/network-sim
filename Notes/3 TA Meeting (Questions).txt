@@ -3,5 +3,3 @@ Is there still transmission time if the packet is dropped?
 Is there transmission time to add a packet to the buffer or just to send from the buffer? (I assume if there is both, they can happen simultaneously)
 Do we need all three phases of TCP? In that case, flows do the acknoledgement, not the hosts.
 Is the number of packets for a size N file just N / 1 kB? Ignore headers?
-
-.
