@@ -4,6 +4,9 @@ FLOW_GENERATED_PACKET_SIZE = 1024
 # may assume that flow-generated data packets have a fixed size of 1024 bytes,
 # including any packet headers or trailers
 
+# For queue in Link
+import collections
+
 # By default, if a function has a yield statement in it, it is a generator.
 
 # Note: For acknowledgements, we should be saying I'm expecting this packet next
@@ -36,7 +39,7 @@ class Host:
                 # send a packet
                 pass
 
-class Router(algorith?):
+class Router:
     def __init__(self,env):
         self.queue = []
         self.links = []
@@ -59,7 +62,7 @@ class Packet:
     def __init__(self,env,destination,information):
         self.destination = destination
         self.information = information
-        self.size = len(information)   # bits? bytes?
+        self.size = len(information)   # bytes
 
         # something that the lecture notes say each packet has in the header
         # to discuss
@@ -67,16 +70,21 @@ class Packet:
         self.ackNumber = None
 
 class Link:
-    def __init__(self, env, delay, bufferSize, rate):
+    def __init__(self, env, id, delay, bufferSize, rate):
+        self.id = id
         self.env = env
-        self.rate = rate  # Mbps
+        self.rate = rate               # Mbps
         # An infinite size queue. We internally enforce limits.
-        self.buffer = collections.deueue()
+        self.buffer = collections.deque()
         self.propagationDelay = delay  # ms
-        self.bufferSize = bufferSize   # bit/bytes?
-        self.bufferUsed = 0;           # bit/bytes?
+        self.bufferSize = bufferSize   # bytes
+        self.bufferUsed = 0;           # bytes
         self.source = None             # a host or router
         self.destination = None        # a host or router
+
+        # For monitoring
+        self.bitsSent = 0
+        self.packetsDropped = 0
 
     # This is a generator, not a function so must be called as such
     # or created as a simpy process.
@@ -97,11 +105,11 @@ class Link:
         if self.bufferUsed + packet.size <= self.bufferSize:
             self.buffer.append(packet)
             self.bufferUsed += packet.size
-        else:
-            pass     # Effectively drop the packet
+        else: # Drop the packet
+            self.packetsDropped += 1
 
         # Wait transmissionTime of the packet, to hold back source.
-        transmissionDelay = packet.size / self.rate
+        transmissionDelay = packet.size * 8 / self.rate   # 8 for byte to bit
         yield self.env.timeout(transmissionDelay) # Not sure if yield is right
 
     # This is a generator, not a function so must be called as such
@@ -117,10 +125,14 @@ class Link:
                 packet = self.buffer.popleft()
 
                 # Wait transmission delay
-                transmissionDelay = packet.size / self.rate
+                # 8 for byte to bit
+                transmissionDelay = packet.size * 8 / self.rate
                 yield self.env.timeout(transmissionDelay)
                 # The packet has been sent, so buffer has been freed
-                self.bufferUsed -= packet.size;
+                self.bufferUsed -= packet.size
+
+                # Monitoring
+                self.bitsSent += packet.size
 
                 # Pass to router after propagationDelay time (but don't
                 # wait).
@@ -133,26 +145,9 @@ class Link:
             yield self.env.timeout(0.1)
 
 
-        #need to simpy this
-class Flow:
-    def __init__(self,source,destination,size,start):
-        self.size = size
-        self.sizeLeft = size
-        self.source = source
-        self.destination = destination
-        self.unacknolwedgedPackets = []
-        # or self.acknowledgedPackets?
-    def run(self,start):
-        while True:
-
-            yield
-
-    def receive(self, packet):
-        # Receive an acknow
-
 def addFlow(flow):
     # Adds flow to the source host of the flow
-
+    pass
 
 
 def makePacket():
