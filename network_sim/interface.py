@@ -1,4 +1,6 @@
-import link, flow
+from link import Link
+from flow import Tahoe
+from host import Host
 import json
 
 # Takes filename (json) file and outputs a list of hosts, routers, links, flows.
@@ -17,7 +19,7 @@ def get_config(env,filename):
 
     # create link objects
     for link in test_data["links"]:
-        l = link.Link(env, \
+        l = Link(env, \
         test_data['links'][link]['link_id'],\
         test_data['links'][link]['link_delay'], \
         test_data['links'][link]['link_buffer'], \
@@ -32,7 +34,7 @@ def get_config(env,filename):
 
     # create flow objects
     for flow in test_data['flows']:
-        f = flow.Tahoe(env,\
+        f = Tahoe(env,\
         test_data['flows'][flow]['flow_src'],\
         test_data['flows'][flow]['flow_dest'],\
         test_data['flows'][flow]['data_amt'],\

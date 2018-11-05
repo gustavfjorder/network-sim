@@ -1,3 +1,5 @@
+import collections
+
 class Link:
     def __init__(self, env, id, delay, bufferSize, rate):
         self.id = id
