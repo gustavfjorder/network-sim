@@ -3,34 +3,34 @@ from packets import Packet
 data_size = 1024
 ackTimeOut = 10
 
-#env.now() to track RTT time acktime out is double RTT time
-#when we start flow send initial packet to determine RTT
+# env.now() to track RTT time acktime out is double RTT time
+# when we start flow send initial packet to determine RTT
 
 class Tahoe:
     """
     #Implementation of Go Back N
     """
-    def __init__(self,name,env,source,destination,size,windowSize):
+    def __init__(self, name, env, source, destination, size, windowSize):
         self.id = name
         self.env = env
         self.source = source
         self.destination = destination
-        self.packets = self.makePackets(size) #expecting a indexable list as implementation
+        self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
         self.windowSize = windowSize
         self.ackTimeOut = ackTimeOut
-        self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) #no zero indexing here
+        self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.packets)]
 
     def makePackets(size):
-        size = size * 1024 * 1024# In bytes
+        size = size * 1024 * 1024  # In bytes
         N = size / data_size
 
         output = []
-        
+
         for i in range(N):
-            output.append(Packet(self.source,self.destination,i+1, 'Data', data_size))
+            output.append(Packet(self.source, self.destination, i+1, 'Data', data_size))
 
         return output
 
@@ -44,18 +44,18 @@ class Tahoe:
 
     def put(self, packet): #receiving
         nextExpectedPacketNumber = self.packetProcess(packet)
-        
+
         if nextExpectedPacketNumber > self.num_packets:
             self.done = 1
         else:
             setWindow(nextExpectedPacketNumber)
 
-    def send(self,source):
+    def send(self, source):
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
             source.put(self.packets[i])
 
-    def timeOut(self,time):
+    def timeOut(self, time):
         yield self.env.timeout(time)
 
     def run(self):
@@ -64,9 +64,9 @@ class Tahoe:
             try:
                 yield self.env.process(self.env.timeout(self.ackTimeOut))
 
-            except simpy.Interrupt: #receive ACK
+            except simpy.Interrupt: # receive ACK
                 pass
-                #print('Got an acknowledgement :)')
+                # print('Got an acknowledgement :)')
 
 # This should be what the host uses to interrupt me sortaa
 def ack(env, flow):
