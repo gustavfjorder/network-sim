@@ -1,8 +1,9 @@
 #import notes
 import json
+import flow.py
 
-def get_config(env,filename):
 # Takes filename (json) file and outputs a list of hosts, routers, links, flows.
+def get_config(env,filename):
     try:
         with open(filename) as f:
             test_data = json.load(f)
@@ -24,8 +25,7 @@ def get_config(env,filename):
         test_data['links'][link]['link_rate'])
         links.append(l)
 
-
-
+    # create hosts
     for host in test_data['hosts']:
         h = Host(env, test_data['hosts'][host]['host_id'],1)
         h.link = next((l for l in links if l.id == test_data['hosts'][host]['link_id']), None)
@@ -33,7 +33,7 @@ def get_config(env,filename):
 
     # create flow objects
     for flow in test_data['flows']:
-        f = Flow(\
+        f = Tahoe(env,\
         test_data['flows'][flow]['flow_src'],\
         test_data['flows'][flow]['flow_dest'],\
         test_data['flows'][flow]['data_amt'],\
@@ -41,6 +41,7 @@ def get_config(env,filename):
         flows.append(f)
 
     return hosts,links,flows
+
 
 
 def main():
