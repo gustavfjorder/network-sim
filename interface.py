@@ -14,33 +14,37 @@ def get_config(env,filename):
     hosts = []
     links = []
     flows = []
-    for host in test_data['hosts']:
-        host = Host(env, test_data['hosts'][host]['host_id'],1)
-        hosts.append(host)
 
     # create link objects
     for link in test_data["links"]:
-        link = Link(env, \
+        l = Link(env, \
         test_data['links'][link]['link_id'],\
         test_data['links'][link]['link_delay'], \
         test_data['links'][link]['link_buffer'], \
         test_data['links'][link]['link_rate'])
-        links.append(link)
+        links.append(l)
+
+
+
+    for host in test_data['hosts']:
+        h = Host(env, test_data['hosts'][host]['host_id'],1)
+        h.link = next((l for l in links if l.id == test_data['hosts'][host]['link_id']), None)
+        hosts.append(h)
 
     # create flow objects
     for flow in test_data['flows']:
-        flow = Flow(\
+        f = Flow(\
         test_data['flows'][flow]['flow_src'],\
         test_data['flows'][flow]['flow_dest'],\
         test_data['flows'][flow]['data_amt'],\
         test_data['flows'][flow]['flow_start'])
-        flows.append(flow)
+        flows.append(f)
 
     return hosts,links,flows
 
 
 def main():
-    env = 0 
+    env = 0
     input_file ="test0.json"#{} input("Test name: ")
     test_data = get_config(env,input_file)
 
