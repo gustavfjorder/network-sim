@@ -1,6 +1,9 @@
 # For graphing at the end
 import matplotlib.pyplot as plt
 
+# For excel
+import xlwt
+
 def show_results(monitor):
     for i, link in enumerate(monitor.links):
         plt.plot(monitor.linkRates[i])
@@ -12,7 +15,23 @@ def show_results(monitor):
     for i, flows in enumerate(monitor.flows):
         plt.plot(monitor.flowWindowSize[i])
         plt.show()
-        
+
+def export_results(monitor, new_filename = "output"):
+    book = xlwt.Workbook()
+
+    for i, link in enumerate(monitor.links):
+        sheet = book.add_sheet((link.id + "_rate")
+        sheet.write
+
+        sheet = book.add_sheet((link.id + "_bufferUsed")
+
+        sheet = book.add_sheet((link.id + "_packetsDropped")
+
+    for i, flows in enumerate(monitor.flows):
+        pass
+
+    book.save(new_filename)
+
 
 class Monitor:
     def __init__(self, links, flows):
@@ -27,6 +46,7 @@ class Monitor:
 
         # Initialize flow info
         self.flowWindowSize = [[] for i in range(len(flows))]
+        self.flowRTT = [[] for i in range(len(flows))]
 
     def run():
         while True:
@@ -56,3 +76,7 @@ class Monitor:
             # Get the current window size
             windowSize = flow.windowSize
             flowWindowSize[i].append(windowSize)
+
+            # Get the current round trip time
+            RTT = flow.RTT
+            flowRTT[i].append(RTT)
