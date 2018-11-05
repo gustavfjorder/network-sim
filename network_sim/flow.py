@@ -49,7 +49,7 @@ class Tahoe:
         for i in range(start, end + 1):
             source.put(self.packets[i])
 
-    def timeOut(self, time=self.ackTimeOut):
+    def timeOut(self,time):
         yield self.env.timeout(time)
 
     def run(self):
