@@ -24,6 +24,10 @@ class Tahoe:
         self.RTT = [-1 for i in range(self.packets)]
 
     def makePackets(size):
+        """
+        For a give size of packets, I will intialize an array of Packet
+        classes to send.
+        """
         size = size * 1024 * 1024  # In bytes
         N = size / data_size
 
@@ -35,27 +39,45 @@ class Tahoe:
         return output
 
     def packetProcess(packet):
+        """
+        Depending on the algorithm, we process ACK packets differently.
+        """
         assert packet.type == 'ACK'
         return packet.ackData['Tahoe'] # should be an int
 
 
     def setWindow(start):
+        """
+        just a function to deal with indexing since packets are
+        1 indexed while arrays are 0 indexed.
+        """
         self.windowIndex = (start - 1, min(nextExpectedPacketNumber - 1 + self.windowSize - 1, self.num_packets - 1))
 
-    def put(self, packet): #receiving
+    def put(self, packet):
+
         nextExpectedPacketNumber = self.packetProcess(packet)
 
         if nextExpectedPacketNumber > self.num_packets:
+        """
+        If my ACK packet is larger than the number of packets I
+        was sending, I am done.
+        """
             self.done = 1
         else:
             setWindow(nextExpectedPacketNumber)
 
     def send(self, source):
+        """
+        Send all packets in the window.
+        """
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
             source.put(self.packets[i])
 
     def timeOut(self, time):
+        """
+        Time passing function
+        """
         yield self.env.timeout(time)
 
     def run(self):
