@@ -4,12 +4,14 @@ data_size = 1024
 ackTimeOut = 10
 
 #env.now() to track RTT time acktime out is double RTT time
+#when we start flow send initial packet to determine RTT
 
 class Tahoe:
     """
     #Implementation of Go Back N
     """
-    def __init__(self,env,source,destination,size,windowSize):
+    def __init__(self,name,env,source,destination,size,windowSize):
+        self.id = name
         self.env = env
         self.source = source
         self.destination = destination
