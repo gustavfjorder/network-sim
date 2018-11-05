@@ -1,4 +1,4 @@
-#import notes
+import notes
 import json
 import flow.py
 
@@ -18,7 +18,7 @@ def get_config(env,filename):
 
     # create link objects
     for link in test_data["links"]:
-        l = Link(env, \
+        l = notes.Link(env, \
         test_data['links'][link]['link_id'],\
         test_data['links'][link]['link_delay'], \
         test_data['links'][link]['link_buffer'], \
@@ -27,7 +27,7 @@ def get_config(env,filename):
 
     # create hosts
     for host in test_data['hosts']:
-        h = Host(env, test_data['hosts'][host]['host_id'],1)
+        h = notes.Host(env, test_data['hosts'][host]['host_id'],1)
         h.link = next((l for l in links if l.id == test_data['hosts'][host]['link_id']), None)
         hosts.append(h)
 
