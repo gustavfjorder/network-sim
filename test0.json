@@ -2,10 +2,12 @@
   "test": "test0",
   "hosts": {
     "host1": {
-      "host_id": "H1"
+      "host_id": "H1",
+      "link": "L1"
     },
     "host2": {
-      "host_id": "H2"
+      "host_id": "H2",
+      "link": "L1"
     }
   },
   "links": {
