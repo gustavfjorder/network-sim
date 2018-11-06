@@ -3,9 +3,9 @@ import collections
 
 # Link class.
 # To send things through a link, yield to Link.put(packet) (as a simpy process).
-# Link.run is a simpy process that will constantly run. 
+# Link.run is a simpy process that will constantly run.
 class Link:
-    def __init__(self, env, id, delay, bufferSize, rate):
+    def __init__(self, env, id, delay, bufferSize, rate, source, destination):
         # Passed in attributes
         self.id = id
         self.env = env
@@ -13,9 +13,9 @@ class Link:
         self.propagationDelay = delay  # ms
         self.bufferSize = bufferSize   # bytes
 
-        # To be filled. Objects representing source/dest
-        self.source = None             # a host or router
-        self.destination = None        # a host or router
+        # Objects representing source/dest
+        self.source = source                  # a host or router
+        self.destination = destination        # a host or router
 
         # An infinite size queue. We internally enforce buffer limits.
         self.buffer = collections.deque()

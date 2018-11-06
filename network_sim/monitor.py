@@ -2,7 +2,8 @@
 import matplotlib.pyplot as plt
 
 # For excel
-import xlwt
+import pandas as pd
+import numpy as np
 
 def show_results(monitor):
     for i, link in enumerate(monitor.links):
@@ -16,21 +17,25 @@ def show_results(monitor):
         plt.plot(monitor.flowWindowSize[i])
         plt.show()
 
-def export_results(monitor, new_filename = "output"):
-    book = xlwt.Workbook()
+def export_results(monitor, new_filename = "output.xlsx"):
+    writer = df.ExcelWriter(new_filename, engine='xlsxwriter')
 
     for i, link in enumerate(monitor.links):
-        sheet = book.add_sheet((link.id + "_rate")
-        sheet.write
-
-        sheet = book.add_sheet((link.id + "_bufferUsed")
-
-        sheet = book.add_sheet((link.id + "_packetsDropped")
+        array = np.array([list(range(len(linkRates))), \
+                        monitor.linkRates[i], \
+                        monitor.bufferUsed[i], \
+                        monitor.packetsDropped[i]])
+        df = pd.DataFrame(array)
+        df.to_excel(writer, sheet_name = link.id)
 
     for i, flows in enumerate(monitor.flows):
-        pass
+        array = np.array([list(range(len(flowWindowSize))), \
+                        monitor.flowWindowSize[i], \
+                        monitor.flowRTT[i])
+        df = pd.DataFrame(array)
+        df.to_excel(writer, sheet_name = flow.id)
 
-    book.save(new_filename)
+    writer.save()
 
 
 class Monitor:

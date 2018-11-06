@@ -1,6 +1,6 @@
 import simpy
 import interface
-from monitor import Monitor, show_results
+from monitor import Monitor, show_results, export_results
 
 
 def runSimulator(input_file):
@@ -22,3 +22,6 @@ def runSimulator(input_file):
 
     # Graph the results
     show_results(monitor)
+
+    # Export the resutls to output.xlsx
+    export_results(monitor)

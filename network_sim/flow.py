@@ -58,10 +58,10 @@ class Tahoe:
         nextExpectedPacketNumber = self.packetProcess(packet)
 
         if nextExpectedPacketNumber > self.num_packets:
-        """
-        If my ACK packet is larger than the number of packets I
-        was sending, I am done.
-        """
+            """
+            If my ACK packet is larger than the number of packets I
+            was sending, I am done.
+            """
             self.done = 1
         else:
             setWindow(nextExpectedPacketNumber)
