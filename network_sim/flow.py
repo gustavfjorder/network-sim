@@ -89,8 +89,3 @@ class Tahoe:
             except simpy.Interrupt: # receive ACK
                 pass
                 # print('Got an acknowledgement :)')
-
-# This should be what the host uses to interrupt me sortaa
-def ack(env, flow):
-    car.put(ackPacket)
-    car.action.interrupt()
