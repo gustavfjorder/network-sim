@@ -72,6 +72,10 @@ class Link:
 
         print("send packet", packet.sequenceNumber)
 
+    def finishSendingPacket(self, packet):
+        self.destination.put(packet)
+        yield self.env.timeout(0)
+
     def run(self):
         '''
         Sends packets down the link. Runs continuously as a simpy process.
@@ -108,7 +112,7 @@ class Link:
                 # start_delayed is like process, but will start the process
                 # after a time delay.
                 simpy.util.start_delayed(self.env, \
-                                     self.destination.put(packet), \
+                                     self.finishSendingPacket(packet), \
                                      self.propagationDelay)
             # Check again after 0.1 ms.
             yield self.env.timeout(0.1)
