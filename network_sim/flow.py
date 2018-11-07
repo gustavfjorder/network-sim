@@ -61,8 +61,8 @@ class Tahoe:
 
     # This should be what the host uses to interrupt flow sortaa
     def ack(self, ackPacket):
-        flow.put(ackPacket)
-        flow.action.interrupt()
+        self.put(ackPacket)
+        self.action.interrupt()
 
     def put(self, packet):
 
