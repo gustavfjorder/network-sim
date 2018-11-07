@@ -49,7 +49,7 @@ class Link:
         Put into the buffer (run deals with transmission delay, so do this
         first) if buffer not full. Otherwise, drop the packet.
         '''
-        print("received packet ", packet.sequenceNumber, env.now())
+        print("received packet ", packet.sequenceNumber, self.env.now)
         print(self.bufferUsed, packet.size, self.bufferSize)
         if self.bufferUsed + packet.size <= self.bufferSize:
             print("packet in buffer, ", packet.sequenceNumber)
