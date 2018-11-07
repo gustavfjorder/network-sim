@@ -24,14 +24,14 @@ class Host:
         # Pass it to flow
         # receive ack OR send ack if it isn't an ack
         if(packet.type == 'ACK'):
-            ack(self.env, self.flow, packet)
+            ack(self, self.flow, packet)
         else:
             # Packet is not an Acknowledgement, need to  send an acknowledgement
             # new destination is the source, get this from the flow\
             ackData = None  # initalize this later
             ackPacket = Packet(self, packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
-            self.flow.put(ackPacket)
+            self.link.put(ackPacket)
 
 
     def run(self):
