@@ -72,7 +72,7 @@ class Tahoe:
         """
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
-            source.put(self.packets[i])
+            source.send(self.packets[i])
 
     def timeOut(self, time):
         """
