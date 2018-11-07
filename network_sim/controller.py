@@ -14,7 +14,6 @@ def runSimulator(input_file):
     hosts, links, flows = interface.get_config(env, input_file)
 
     monitor = Monitor(env, links, flows)
-    env.process(monitor.run())
 
     # Run the simulation
     env.run(5000)

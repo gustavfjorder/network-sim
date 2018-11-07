@@ -54,6 +54,9 @@ class Monitor:
         self.flowWindowSize = [[] for i in range(len(flows))]
         self.flowRTT = [[] for i in range(len(flows))]
 
+        # Start simpy process
+        self.env.process(self.run())
+
     def run(self):
         while True:
             self.checkLinks()
