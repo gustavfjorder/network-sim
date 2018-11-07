@@ -30,7 +30,7 @@ class Tahoe:
         """
         print(size, data_size, type(size), type(data_size))
         size = size * 1024 * 1024  # In bytes
-        N = size / data_size
+        N = ceiling(size / data_size)
 
         output = []
 
