@@ -28,6 +28,7 @@ class Tahoe:
         For a give size of packets, I will intialize an array of Packet
         classes to send.
         """
+        print(size, data_size, type(size), type(data_size))
         size = size * 1024 * 1024  # In bytes
         N = size / data_size
 
