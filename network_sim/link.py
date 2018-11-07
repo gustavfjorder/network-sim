@@ -1,6 +1,6 @@
 # For link buffer
 import collections
-import simpy
+import simpy.util
 
 class Link:
     '''
@@ -31,6 +31,8 @@ class Link:
         self.bitsSent = 0
         self.packetsDropped = 0
 
+
+
     def put(self, packet):
         '''
         Receives a packet.
@@ -50,9 +52,8 @@ class Link:
         first) if buffer not full. Otherwise, drop the packet.
         '''
         print("received packet ", packet.sequenceNumber, self.env.now)
-        print(self.bufferUsed, packet.size, self.bufferSize)
         if self.bufferUsed + packet.size <= self.bufferSize:
-            print("packet in buffer, ", packet.sequenceNumber)
+            print("packet in buffer, ", packet.sequenceNumber, self.env.now)
             self.buffer.append(packet)
             self.bufferUsed += packet.size
         else: # Drop the packet
@@ -60,9 +61,11 @@ class Link:
             self.packetsDropped += 1
 
         # Wait transmissionTime of the packet, to hold back source.
-        transmissionDelay = packet.size * 8 / self.rate   # 8 for byte to bit
+        # 8 for byte to bit
+        transmissionDelay = packet.size * 8 / self.rate
         # yield self.env.timeout(transmissionDelay) # Not sure if yield is right
 
+        print("send packet", packet.sequenceNumber)
 
     def run(self):
         '''
@@ -76,10 +79,13 @@ class Link:
             # If buffer not empty, send all the packets in buffer.
             # After propagation delay (plus transmission), they will arrive.
             # Space departures by transmission delay.
+
             while self.buffer:
 
                 # Get packet (popleft is FIFO)
                 packet = self.buffer.popleft()
+
+                print("send packet", packet.sequenceNumber)
 
                 print("sending packet ", packet.sequenceNumber, "to ", packet.destination)
 
