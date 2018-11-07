@@ -1,4 +1,6 @@
 from packets import Packet
+from math import ceil
+import simpy
 
 data_size = 1024
 ackTimeOut = 10
@@ -21,15 +23,16 @@ class Tahoe:
         self.windowSize = 4
         self.ackTimeOut = ackTimeOut
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
-        self.RTT = [-1 for i in range(self.packets)]
+        self.RTT = [-1 for i in range(self.num_packets)]
 
     def makePackets(self, size):
         """
         For a give size of packets, I will intialize an array of Packet
         classes to send.
         """
+        print(size, data_size, type(size), type(data_size))
         size = size * 1024 * 1024  # In bytes
-        N = size / data_size
+        N = ceil(size / data_size)
 
         output = []
 
@@ -82,7 +85,7 @@ class Tahoe:
 
     def run(self):
         while not self.done:
-            self.send()
+            self.send(self.source)
             try:
                 yield self.env.process(self.env.timeout(self.ackTimeOut))
 

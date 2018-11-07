@@ -38,11 +38,14 @@ def get_config(env,filename):
         hosts.append(h)
 
     # create flow objects
+    # TODO: Start of flows changes
     for flow in test_data['flows']:
         flow_info = test_data['flows'][flow]
+
+        id = flow_info['flow_id']
         source = next((h for h in hosts if h.id == flow_info['flow_src']), None)
-        f = Tahoe(env, source, flow_info['flow_dest'], flow_info['data_amt'], \
-                  flow_info['flow_start'])
+
+        f = Tahoe(id, env, source, flow_info['flow_dest'], flow_info['data_amt'])
 
         flows.append(f)
 
