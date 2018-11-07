@@ -1,11 +1,11 @@
 import flow, packets
 
 class Host:
-    def __init__(self,env, name, link, flow):
+    def __init__(self,env, name, link):
         self.env = env
         self.id = name
-        aelf.addLink(link)
-        self.addFlow(flow)
+        self.link = link
+        self.flow = None
 
     def addFlow(flow):
         self.flow = flow
