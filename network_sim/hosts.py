@@ -29,7 +29,7 @@ class Host:
             # Packet is not an Acknowledgement, need to  send an acknowledgement
             # new destination is the source, get this from the flow\
             ackData = None  # initalize this later
-            ackPacket = Packet(self.env, packet.destination, packet.source, \
+            ackPacket = Packet(self, packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             self.flow.put(ackPacket)
 
