@@ -23,6 +23,9 @@ class Link:
         self.source = source                  # a host or router
         self.destination = destination        # a host or router
 
+        # Run (add to env)
+        self.action = env.process(self.run())
+
         # An infinite size queue. We internally enforce buffer limits.
         self.buffer = collections.deque()
         self.bufferUsed = 0;           # bytes

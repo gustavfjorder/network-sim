@@ -26,6 +26,9 @@ class Tahoe:
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
 
+        # Start running the thing
+        self.action = env.process(self.run())
+
     def makePackets(self, size):
         """
         For a give size of packets, I will intialize an array of Packet

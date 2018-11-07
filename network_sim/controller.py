@@ -8,13 +8,10 @@ def runSimulator(input_file):
 
     env = simpy.Environment()
 
+    # Initialize the functions
+    # This will initialize any startup processes needed
+    # Though we might need to change this if a flow starts after time 0
     hosts, links, flows = interface.get_config(env, input_file)
-
-    for link in links:
-        env.process(link.run())
-
-    for flow in flows:
-        env.process(flow.run())
 
     monitor = Monitor(links, flows)
 
