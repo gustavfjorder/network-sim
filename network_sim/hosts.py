@@ -37,7 +37,7 @@ class Host:
             if packet.source not in self.lastPacketReceived:
                 self.lastPacketReceived[packet.source.id] = packet.sequenceNumber
             else:
-                if self.lastPacketReceived[packet.source.id] + 1 = packet.sequenceNumber:
+                if self.lastPacketReceived[packet.source.id] + 1 == packet.sequenceNumber:
                     self.lastPacketReceived[packet.source.id] = packet.sequenceNumber
 
             ackData = {"Tahoe": self.lastPacketReceived[packet.source.id] + 1}
