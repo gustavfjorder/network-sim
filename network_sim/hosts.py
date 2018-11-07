@@ -7,7 +7,10 @@ class Host:
         self.link = link
         self.flow = None
 
-    def addFlow(flow):
+    def addFlow(self, flow):
+        '''
+        Flow calls this when it initializes
+        '''
         self.flow = flow
 
     def send(self, packet):
@@ -15,7 +18,6 @@ class Host:
         # From flow to link
         self.link.put(packet)
         return
-
 
     def put(self, packet):
         # Receive a packet from link
