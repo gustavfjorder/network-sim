@@ -49,7 +49,7 @@ class Monitor:
         self.env = env
         self.links = links
         self.flows = flows
-        self.refreshRate = 10  # ms
+        self.refreshRate = 100  # ms
 
         # Initialize a place to store link info
         self.linkRates = [[] for i in range(len(links))]
