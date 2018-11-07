@@ -1,5 +1,11 @@
 # For graphing at the end
 import matplotlib.pyplot as plt
+# Fixes weird mac error for Alix 
+"""
+import matplotlib
+matplotlib.use("TkAgg")
+from matplotlib import pyplot as plt
+"""
 
 # For excel
 import pandas as pd
@@ -54,11 +60,9 @@ class Monitor:
         self.flowWindowSize = [[] for i in range(len(flows))]
         self.flowRTT = [[] for i in range(len(flows))]
 
-        # Start simpy process
-        self.env.process(self.run())
-
     def run(self):
         while True:
+            print("monitor")
             self.checkLinks()
             self.checkFlows()
 
