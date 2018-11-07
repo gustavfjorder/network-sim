@@ -6,7 +6,7 @@ class Packet:
         self.destination = destination
         self.debug = debug
         self.type = string_type
-        self.sequenceNumber = None
+        self.sequenceNumber = sequenceNumber
         self.size = size
 
 class ACK(Packet):
