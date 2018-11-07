@@ -31,7 +31,10 @@ class Link:
         self.bitsSent = 0
         self.packetsDropped = 0
 
-
+    def transmissionDelay(self, packet):
+        # 8 for byte to bit
+        # 10^6 for Mbps to bps
+        return packet.size * 8 / (self.rate * 10**6)
 
     def put(self, packet):
         '''
@@ -62,8 +65,7 @@ class Link:
 
         # Wait transmissionTime of the packet, to hold back source.
         # 8 for byte to bit
-        transmissionDelay = packet.size * 8 / self.rate
-        # yield self.env.timeout(transmissionDelay) # Not sure if yield is right
+        # yield self.env.timeout(self.transmissionDelay(packet)) # Not sure if yield is right
 
         print("send packet", packet.sequenceNumber)
 
@@ -91,9 +93,7 @@ class Link:
 
 
                 # Wait transmission delay
-                # 8 for byte to bit
-                transmissionDelay = packet.size * 8 / self.rate
-                yield self.env.timeout(transmissionDelay)
+                yield self.env.timeout(self.transmissionDelay(packet))
                 # The packet has been sent, so buffer has been freed
                 self.bufferUsed -= packet.size
 
