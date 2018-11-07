@@ -1,20 +1,17 @@
-import flow, acknowledgedPackets
+import flow, packets
 
 class Host:
     def __init__(self,env,name, link):
         self.env = env
         self.id = name
         addLink(link)
-        self.flows = []
+        self.flow = None
 
     def addFlow(flow):
-        self.flows.append(flow)
+        self.flow = flow
 
     def addLink(link):
         self.link = link
-
-    #def addPort(self):
-        #return
 
     def send(self, packet):
         # being called by Flow ???
@@ -25,20 +22,24 @@ class Host:
     def put(self, packet):
         # Receive a packet from link
         # Pass it to flow
-        self.flows
+        self.flow.packetProcess(packet)
         # receive ack OR send ack if it isn't an ack
         if(packet.type == 'ACK'):
+            # Remove packet from flow.packets
             pass
         else:
             # Packet is not an Acknoledgement, need to  send an acknowledgement
-            # new destination is the source, get this from the flow
-            awkPacket = Packet(self.env, packet.)
-        pass
+            # new destination is the source, get this from the flow\
+            ackData = None  # initalize this later
+            ackPacket = Packet(self.env, packet.destination, packet.source, \
+                packet.sequenceNumber, ackData )
+            self.send(ackPacket)
 
     def run(self):
         while (True):
-            # if there is a flo
+            # if there is a flow
+            if( self.flow):
                 # send a packet
-                pass
+                self.send(packet);
 
 # host should call recieve in Flow
