@@ -87,7 +87,7 @@ class Tahoe:
         while not self.done:
             self.send(self.source)
             try:
-                yield self.env.process(self.env.timeout(self.ackTimeOut))
+                yield self.env.process(self.timeOut(self.ackTimeOut))
 
             except simpy.Interrupt: # receive ACK
                 pass
