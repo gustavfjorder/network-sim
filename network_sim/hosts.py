@@ -24,7 +24,7 @@ class Host:
         # Pass it to flow
         # receive ack OR send ack if it isn't an ack
         if(packet.type == 'ACK'):
-            ack(self, self.flow, packet)
+            self.flow.ack(packet)
         else:
             # Packet is not an Acknowledgement, need to  send an acknowledgement
             # new destination is the source, get this from the flow\
@@ -40,11 +40,6 @@ class Host:
             if(self.flow):
                 # send a packet
                 self.flow.send(self)
-
-    # This should be what the host uses to interrupt flow sortaa
-    def ack(flow, ackPacket):
-        flow.put(ackPacket)
-        flow.action.interrupt()
 
 
 

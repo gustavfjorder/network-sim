@@ -57,6 +57,14 @@ class Tahoe:
         """
         self.windowIndex = (start - 1, min(nextExpectedPacketNumber - 1 + self.windowSize - 1, self.num_packets - 1))
 
+
+
+    # This should be what the host uses to interrupt flow sortaa
+    def ack(self, flow, ackPacket):
+        flow.put(ackPacket)
+        flow.action.interrupt()
+
+
     def put(self, packet):
 
         nextExpectedPacketNumber = self.packetProcess(packet)
