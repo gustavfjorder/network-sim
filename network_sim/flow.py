@@ -16,6 +16,7 @@ class Tahoe:
         self.id = name
         self.env = env
         self.source = source
+        self.source.addFlow(self)
         self.destination = destination
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
