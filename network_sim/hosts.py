@@ -10,9 +10,6 @@ class Host:
     def addFlow(flow):
         self.flow = flow
 
-    def addLink(link):
-        self.link = link
-
     def send(self, packet):
         # being called by Flow ???
         # From flow to link
