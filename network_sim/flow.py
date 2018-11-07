@@ -22,7 +22,7 @@ class Tahoe:
         self.windowSize = 4
         self.ackTimeOut = ackTimeOut
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
-        self.RTT = [-1 for i in range(self.packets)]
+        self.RTT = [-1 for i in range(self.num_packets)]
 
     def makePackets(self, size):
         """
