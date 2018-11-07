@@ -67,7 +67,7 @@ def get_config(env,filename):
         link.destination = destination
 
     print(hosts, links, flows)
-    return (hosts, links, flows)
+    return (hosts, links, flows, router)
 
 
 

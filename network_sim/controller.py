@@ -8,7 +8,7 @@ def runSimulator(input_file):
 
     env = simpy.Environment()
 
-    hosts, links, flows = interface.get_config(env, input_file)
+    hosts, links, flows, routers = interface.get_config(env, input_file)
 
     for link in links:
         env.process(link.run())
