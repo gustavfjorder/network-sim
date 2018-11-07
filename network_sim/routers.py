@@ -30,14 +30,9 @@ class Routers:
         flow = self.findFlowForPackage()
 
 
-
     def run(self):
         while (True):
             # if there is a flow
             if(self.flow):
                 # send a packet
                 self.flow.send(self)
-
-
-
-# host should call recieve in Flow
