@@ -1,5 +1,9 @@
 Which item should send acknoledgements? Should there be a corresponding flow at the desitnation of the flow?
-Is there still transmission time if the packet is dropped?
-Is there transmission time to add a packet to the buffer or just to send from the buffer? (I assume if there is both, they can happen simultaneously)
+Is there still transmission time if the packet is dropped? 
+Is there transmission time to add a packet to the buffer or just to send from the buffer? (I assume if there is both, they can happen simultaneously) Make sure RTT is right
+RTT if dup packet add timestamp, then no confsion for RTT.
 Do we need all three phases of TCP? In that case, flows do the acknoledgement, not the hosts.
-Is the number of packets for a size N file just N / 1 kB? Ignore headers?
+Is the number of packets for a size N file just N / 1 kB? Ignore headers? Need to send more packets to include header (20 bytes per header)
+Figures in Vegas papers are good 
+Reno and FAST
+Dijsksta (almost definitely)

@@ -41,7 +41,7 @@ def get_config(env,filename):
     for flow in test_data['flows']:
         flow_info = test_data['flows'][flow]
         source = next((h for h in hosts if h.id == flow_info['flow_src']), None)
-        f = Tahoe(env, source, fow_info['flow_dest'], flow_info['data_amt'], \
+        f = Tahoe(env, source, flow_info['flow_dest'], flow_info['data_amt'], \
                   flow_info['flow_start'])
 
         flows.append(f)

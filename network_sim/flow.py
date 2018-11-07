@@ -10,7 +10,7 @@ class Tahoe:
     """
     #Implementation of Go Back N
     """
-    def __init__(self, name, env, source, destination, size, windowSize):
+    def __init__(self, name, env, source, destination, size):
         self.id = name
         self.env = env
         self.source = source
@@ -18,12 +18,12 @@ class Tahoe:
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
-        self.windowSize = windowSize
+        self.windowSize = 4
         self.ackTimeOut = ackTimeOut
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.packets)]
 
-    def makePackets(size):
+    def makePackets(self, size):
         """
         For a give size of packets, I will intialize an array of Packet
         classes to send.
@@ -38,7 +38,7 @@ class Tahoe:
 
         return output
 
-    def packetProcess(packet):
+    def packetProcess(self, packet):
         """
         Depending on the algorithm, we process ACK packets differently.
         """
@@ -46,7 +46,7 @@ class Tahoe:
         return packet.ackData['Tahoe'] # should be an int
 
 
-    def setWindow(start):
+    def setWindow(self, start):
         """
         just a function to deal with indexing since packets are
         1 indexed while arrays are 0 indexed.
