@@ -1,0 +1,62 @@
+{
+  "test": "test0",
+  "routers":{
+    "router1":{
+      "router_id":"R1",
+      "links":["L1","L2"]
+    }
+  },
+  "hosts": {
+    "host1": {
+      "host_id": "H1",
+      "link_id": "L1"
+    },
+    "host2": {
+      "host_id": "H2",
+      "link_id": "L1"
+    }
+  },
+  "links": {
+    "link1": {
+      "link_id": "L1",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64,
+      "link_source": "H1",
+      "link_destination": "R1"
+    },
+    "link2": {
+      "link_id": "L1",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64,
+      "link_source": "R1",
+      "link_destination": "H1"
+    },
+    "link3": {
+      "link_id": "L2",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64,
+      "link_source": "H2",
+      "link_destination": "R1"
+    },
+    "link4": {
+      "link_id": "L2",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64,
+      "link_source": "R1",
+      "link_destination": "H2"
+    }
+  },
+  "flows": {
+    "flow1": {
+      "flow_id": "F1",
+      "flow_src": "H1",
+      "flow_dest": "H2",
+      "data_amt": 20,
+      "flow_start": "1"
+    }
+  }
+}
