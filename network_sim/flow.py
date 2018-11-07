@@ -82,7 +82,7 @@ class Tahoe:
 
     def run(self):
         while not self.done:
-            self.put()
+            self.send()
             try:
                 yield self.env.process(self.env.timeout(self.ackTimeOut))
 
