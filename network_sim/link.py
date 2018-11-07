@@ -1,5 +1,6 @@
 # For link buffer
 import collections
+import simpy
 
 class Link:
     '''
@@ -49,6 +50,7 @@ class Link:
         first) if buffer not full. Otherwise, drop the packet.
         '''
         print("received packet ", packet.sequenceNumber)
+        print(self.bufferUsed, packet.size, self.bufferSize)
         if self.bufferUsed + packet.size <= self.bufferSize:
             print("packet in buffer, ", packet.sequenceNumber)
             self.buffer.append(packet)
