@@ -24,8 +24,9 @@ class Host:
 
     def put(self, packet):
         # Receive a packet from link
-        # Pass it to flow
-        # receive ack OR send ack if it isn't an ack
+
+        # If it's an acknowledgement, pass it to flow
+        # Otherwise, send ack for the packet
         if(packet.type == 'ACK'):
             self.flow.ack(packet)
         else:
