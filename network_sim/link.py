@@ -1,11 +1,16 @@
+# For link buffer
 import collections
 
-
-# Link class.
-# To send things through a link, yield to Link.put(packet) (as a simpy process).
-# Link.run is a simpy process that will constantly run.
 class Link:
+    '''
+    Link class.
+    To send things through a link, yield to Link.put(packet) (as a simpy process).
+    Link.run is a simpy process that will constantly run.
+    '''
+
     def __init__(self, env, id, delay, bufferSize, rate, source, destination):
+        ''' Initializes link '''
+
         # Passed in attributes
         self.id = id
         self.env = env
@@ -25,41 +30,53 @@ class Link:
         self.bitsSent = 0
         self.packetsDropped = 0
 
-    # This is a generator, not a function so must be called as such
-    # or created as a simpy process.
     def put(self, packet):
-        # Receives a packet.
-        #
-        # Put the packet in the buffer. Then wait the transmissionTime for the
-        # packet to finish.
-        #
-        # Warning: This should not get called by two things, because the
-        # transmission delays will get messed up, probably.
-        #
-        # The generator for Link will deal with the link's side of transmission
-        # delay and propagation delay.
+        '''
+        Receives a packet.
 
-        # Put into the buffer (run deals with transmission delay, so do this
-        # first) if buffer not full. Otherwise, drop the packet.
+        Put the packet in the buffer. Then wait the transmissionTime for the
+        packet to finish.
+
+        Warning: This should not get called by two things, because the
+        transmission delays will get messed up, probably.
+        Warning: This is a generator, not a function so must be called as such
+        or created as a simpy process.
+
+        The generator for Link will deal with the link's side of transmission
+        delay and propagation delay.
+
+        Put into the buffer (run deals with transmission delay, so do this
+        first) if buffer not full. Otherwise, drop the packet.
+        '''
+        print("received packet ", packet.sequenceNumber)
         if self.bufferUsed + packet.size <= self.bufferSize:
+            print("packet in buffer, ", packet.sequenceNumber)
             self.buffer.append(packet)
             self.bufferUsed += packet.size
         else: # Drop the packet
+            print("packet dropped, ", packet.sequenceNumber)
             self.packetsDropped += 1
 
         # Wait transmissionTime of the packet, to hold back source.
         transmissionDelay = packet.size * 8 / self.rate   # 8 for byte to bit
-        yield self.env.timeout(transmissionDelay) # Not sure if yield is right
+        # yield self.env.timeout(transmissionDelay) # Not sure if yield is right
 
-    # This is a generator, not a function so must be called as such
-    # or created as a simpy process.
-    # Warning: relies on host or router 'put' is a generator, not a function
+
     def run(self):
+        '''
+        Sends packets down the link. Runs continuously as a simpy process.
+
+        Warning: This is a generator, not a function so must be called as such
+        or created as a simpy process.
+        Warning: relies on host or router 'put' is a generator, not a function
+        '''
         while True:
             # If buffer not empty, send all the packets in buffer.
             # After propagation delay (plus transmission), they will arrive.
             # Space departures by transmission delay.
             while self.buffer:
+                print("sending packet ", packet.sequenceNumber, "to ", packet.destination.id)
+
                 # Get packet (popleft is FIFO)
                 packet = self.buffer.popleft()
 
