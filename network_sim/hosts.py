@@ -14,6 +14,13 @@ class Host:
         self.link = link
 
     def send(self, packet):
+        # being called by Flow ???
+        # From flow to link
+        self.link.put(packet)
+        return
+
+
+    def put(self, packet):
         # Receive a packet from link
         # Pass it to flow
         # receive ack OR send ack if it isn't an ack
@@ -27,12 +34,6 @@ class Host:
                 packet.sequenceNumber, ackData )
             self.flow.put(ackPacket)
 
-
-    def put(self, packet):
-        # being called by Flow ???
-        # From flow to link
-        self.link.put(packet)
-        return
 
     def run(self):
         while (True):
