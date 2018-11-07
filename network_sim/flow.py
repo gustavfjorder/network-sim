@@ -75,7 +75,7 @@ class Tahoe:
             """
             self.done = 1
         else:
-            setWindow(nextExpectedPacketNumber)
+            self.setWindow(nextExpectedPacketNumber)
 
     def send(self, source):
         """
