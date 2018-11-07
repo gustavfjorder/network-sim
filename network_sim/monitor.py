@@ -18,18 +18,18 @@ def show_results(monitor):
         plt.show()
 
 def export_results(monitor, new_filename = "output.xlsx"):
-    writer = df.ExcelWriter(new_filename, engine='xlsxwriter')
+    writer = pd.ExcelWriter(new_filename, engine='xlsxwriter')
 
     for i, link in enumerate(monitor.links):
-        array = np.array([list(range(len(linkRates))), \
+        array = np.array([list(range(len(monitor.linkRates))), \
                         monitor.linkRates[i], \
-                        monitor.bufferUsed[i], \
-                        monitor.packetsDropped[i]])
+                        monitor.linkBufferUsed[i], \
+                        monitor.linkPacketsDropped[i]])
         df = pd.DataFrame(array)
         df.to_excel(writer, sheet_name = link.id)
 
-    for i, flows in enumerate(monitor.flows):
-        array = np.array([list(range(len(flowWindowSize))), \
+    for i, flow in enumerate(monitor.flows):
+        array = np.array([list(range(len(monitor.flowWindowSize))), \
                         monitor.flowWindowSize[i], \
                         monitor.flowRTT[i]])
         df = pd.DataFrame(array)
