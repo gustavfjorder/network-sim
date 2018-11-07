@@ -1,4 +1,4 @@
-import flow, packets
+from packets import Packet
 
 class Host:
     def __init__(self,env, name, link):
