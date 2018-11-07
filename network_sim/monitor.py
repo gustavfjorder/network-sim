@@ -31,7 +31,7 @@ def export_results(monitor, new_filename = "output.xlsx"):
     for i, flows in enumerate(monitor.flows):
         array = np.array([list(range(len(flowWindowSize))), \
                         monitor.flowWindowSize[i], \
-                        monitor.flowRTT[i])
+                        monitor.flowRTT[i]])
         df = pd.DataFrame(array)
         df.to_excel(writer, sheet_name = flow.id)
 
