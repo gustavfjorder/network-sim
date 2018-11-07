@@ -1,6 +1,6 @@
 # For graphing at the end
 import matplotlib.pyplot as plt
-# Fixes weird mac error for Alix 
+# Fixes weird mac error for Alix
 """
 import matplotlib
 matplotlib.use("TkAgg")
@@ -59,6 +59,9 @@ class Monitor:
         # Initialize flow info
         self.flowWindowSize = [[] for i in range(len(flows))]
         self.flowRTT = [[] for i in range(len(flows))]
+
+        # Start simpy process
+        self.env.process(self.run())
 
     def run(self):
         while True:

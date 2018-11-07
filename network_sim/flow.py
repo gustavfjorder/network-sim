@@ -15,9 +15,9 @@ class Tahoe:
     def __init__(self, name, env, source, destination, size):
         self.id = name
         self.env = env
-        self.source = source
+        self.source = source    # A Host object
         self.source.addFlow(self)
-        self.destination = destination
+        self.destination = destination  # A host id (e.g. "H2")
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
@@ -41,7 +41,7 @@ class Tahoe:
         output = []
 
         for i in range(N):
-            output.append(Packet(self.source, self.destination, i+1, 'Data', data_size))
+            output.append(Packet(self.source.id, self.destination, i+1, 'Data', data_size))
 
         return output
 

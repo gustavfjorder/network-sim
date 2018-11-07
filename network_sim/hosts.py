@@ -35,12 +35,12 @@ class Host:
 
             # Update most recent packet received
             if packet.source not in self.lastPacketReceived:
-                self.lastPacketReceived[packet.source.id] = packet.sequenceNumber
+                self.lastPacketReceived[packet.source] = packet.sequenceNumber
             else:
-                if self.lastPacketReceived[packet.source.id] + 1 == packet.sequenceNumber:
-                    self.lastPacketReceived[packet.source.id] = packet.sequenceNumber
+                if self.lastPacketReceived[packet.source] + 1 == packet.sequenceNumber:
+                    self.lastPacketReceived[packet.source] = packet.sequenceNumber
 
-            ackData = {"Tahoe": self.lastPacketReceived[packet.source.id] + 1}
+            ackData = {"Tahoe": self.lastPacketReceived[packet.source] + 1}
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             self.link.put(ackPacket)
