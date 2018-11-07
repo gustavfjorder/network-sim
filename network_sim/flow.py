@@ -55,7 +55,7 @@ class Tahoe:
         just a function to deal with indexing since packets are
         1 indexed while arrays are 0 indexed.
         """
-        self.windowIndex = (start - 1, min(nextExpectedPacketNumber - 1 + self.windowSize - 1, self.num_packets - 1))
+        self.windowIndex = (start - 1, min(start - 1 + self.windowSize - 1, self.num_packets - 1))
 
 
 
@@ -67,6 +67,7 @@ class Tahoe:
     def put(self, packet):
 
         nextExpectedPacketNumber = self.packetProcess(packet)
+        print(nextExpectedPacketNumber)
 
         if nextExpectedPacketNumber > self.num_packets:
             """
