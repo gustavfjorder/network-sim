@@ -75,10 +75,12 @@ class Link:
             # After propagation delay (plus transmission), they will arrive.
             # Space departures by transmission delay.
             while self.buffer:
-                print("sending packet ", packet.sequenceNumber, "to ", packet.destination.id)
 
                 # Get packet (popleft is FIFO)
                 packet = self.buffer.popleft()
+
+                print("sending packet ", packet.sequenceNumber, "to ", packet.destination)
+
 
                 # Wait transmission delay
                 # 8 for byte to bit
