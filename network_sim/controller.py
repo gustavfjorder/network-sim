@@ -1,5 +1,6 @@
 import simpy
 import interface
+import sys
 from monitor import Monitor, show_results, export_results
 
 
@@ -25,3 +26,9 @@ def runSimulator(input_file):
 
     # Export the resutls to output.xlsx
     export_results(monitor)
+
+if __name__ == '__main__':
+    if(len(sys.argv) != 2):
+        print("Usage: <jsonFilename>")
+    else:
+        runSimulator(sys.argv[1])
