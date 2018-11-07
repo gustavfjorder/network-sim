@@ -7,6 +7,9 @@ class Host:
         self.link = link
         self.flow = None
 
+        # Dictionary because host could receive multiple flows
+        self.lastPacketReceived = {}
+
     def addFlow(self, flow):
         '''
         Flow calls this when it initializes
@@ -27,8 +30,16 @@ class Host:
             self.flow.ack(packet)
         else:
             # Packet is not an Acknowledgement, need to  send an acknowledgement
-            # new destination is the source, get this from the flow\
-            ackData = None  # initalize this later
+            # new destination is the source, get this from the flow
+
+            # Update most recent packet received
+            if packet.source not in self.lastPacketReceived:
+                self.lastPacketReceived[packet.source.id] = packet.sequenceNumber
+            else:
+                if self.lastPacketReceived[packet.source.id] + 1 = packet.sequenceNumber:
+                    self.lastPacketReceived[packet.source.id] = packet.sequenceNumber
+
+            ackData = {"Tahoe": self.lastPacketReceived[packet.source.id] + 1}
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             self.link.put(ackPacket)
