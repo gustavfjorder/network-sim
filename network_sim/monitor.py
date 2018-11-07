@@ -39,7 +39,8 @@ def export_results(monitor, new_filename = "output.xlsx"):
 
 
 class Monitor:
-    def __init__(self, links, flows):
+    def __init__(self, env, links, flows):
+        self.env = env
         self.links = links
         self.flows = flows
         self.refreshRate = 10  # ms
@@ -53,35 +54,36 @@ class Monitor:
         self.flowWindowSize = [[] for i in range(len(flows))]
         self.flowRTT = [[] for i in range(len(flows))]
 
-    def run():
+    def run(self):
         while True:
+            print("monitor")
             self.checkLinks()
             self.checkFlows()
 
             # Wait another ms, then check again
-            yield simpy.timeout(self.refreshRate)
+            yield self.env.timeout(self.refreshRate)
 
-    def checkLinks():
-        for i, link in enumerate(links):
+    def checkLinks(self):
+        for i, link in enumerate(self.links):
             # Get the number of bits sent recently, then reset
             linkRate = link.bitsSent / (self.refreshRate * 10**-3) # bps
             link.bitsSent = 0
-            linkRates[i].append(linkRate)
+            self.linkRates[i].append(linkRate)
 
             bufferUsed = link.bufferUsed
-            linkBufferUsed[i].append(bufferUsed)
+            self.linkBufferUsed[i].append(bufferUsed)
 
             # Get the number of packets dropped, then reset
             packetsDropped = link.packetsDropped
             link.packetsDropped = 0
             self.linkPacketsDropped[i].append(packetsDropped)
 
-    def checkFlows():
-        for i, flow in enumerate(flows):
+    def checkFlows(self):
+        for i, flow in enumerate(self.flows):
             # Get the current window size
             windowSize = flow.windowSize
-            flowWindowSize[i].append(windowSize)
+            self.flowWindowSize[i].append(windowSize)
 
             # Get the current round trip time
             RTT = flow.RTT
-            flowRTT[i].append(RTT)
+            self.flowRTT[i].append(RTT)

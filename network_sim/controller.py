@@ -13,7 +13,8 @@ def runSimulator(input_file):
     # Though we might need to change this if a flow starts after time 0
     hosts, links, flows = interface.get_config(env, input_file)
 
-    monitor = Monitor(links, flows)
+    monitor = Monitor(env, links, flows)
+    env.process(monitor.run())
 
     # Run the simulation
     env.run(5000)
