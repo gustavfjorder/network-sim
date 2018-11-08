@@ -13,32 +13,42 @@ import numpy as np
 
 def show_results(monitor):
     for i, link in enumerate(monitor.links):
-        plt.plot(monitor.linkRates[i])
+        plt.plot(monitor.xAxis(), monitor.linkRates[i])
+        plt.title(link.id + " Link Rates")
+        plt.xlabel("ms")
+        plt.ylabel("bps")
         plt.show()
 
-        plt.plot(monitor.linkBufferUsed[i])
+        plt.title(link.id + " Buffer Used of " + str(link.bufferSize))
+        plt.xlabel("ms")
+        plt.ylabel("bytes")
+        plt.plot(monitor.xAxis(), monitor.linkBufferUsed[i])
         plt.show()
 
-    for i, flows in enumerate(monitor.flows):
-        plt.plot(monitor.flowWindowSize[i])
+    for i, flow in enumerate(monitor.flows):
+        plt.title(flow.id + " Window Size")
+        plt.xlabel("ms")
+        plt.ylabel("bytes")
+        plt.plot(monitor.xAxis(), monitor.flowWindowSize[i])
         plt.show()
 
 def export_results(monitor, new_filename = "output.xlsx"):
     writer = pd.ExcelWriter(new_filename, engine='xlsxwriter')
 
     for i, link in enumerate(monitor.links):
-        array = np.array([list(range(len(monitor.linkRates))), \
+        array = np.transpose(np.array([monitor.xAxis(), \
                         monitor.linkRates[i], \
                         monitor.linkBufferUsed[i], \
-                        monitor.linkPacketsDropped[i]])
-        df = pd.DataFrame(array)
+                        monitor.linkPacketsDropped[i]]))
+        df = pd.DataFrame(array, columns=["Time (ms)", "Link Rates (bps)", "Buffer Used (bytes)", "Packets Dropped"])
         df.to_excel(writer, sheet_name = link.id)
 
     for i, flow in enumerate(monitor.flows):
-        array = np.array([list(range(len(monitor.flowWindowSize))), \
+        array = np.transpose(np.array([monitor.xAxis(), \
                         monitor.flowWindowSize[i], \
-                        monitor.flowRTT[i]])
-        df = pd.DataFrame(array)
+                        monitor.flowRTT[i]], dtype=object))
+
+        df = pd.DataFrame(array, columns=["Time (ms)", "Window Size (bps)", "RTT (ms))"])
         df.to_excel(writer, sheet_name = flow.id)
 
     writer.save()
@@ -62,6 +72,13 @@ class Monitor:
 
         # Start simpy process
         self.env.process(self.run())
+
+    def xAxis(self):
+        '''
+        Returns a list of the x-axis time in miliseconds for the monitored
+        objects
+        '''
+        return list(range(0, int(self.env.now), self.refreshRate))
 
     def run(self):
         while True:
