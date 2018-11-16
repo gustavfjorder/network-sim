@@ -1,5 +1,5 @@
 from link import Link
-from flow import Tahoe
+from flow import Tahoe,Reno
 from hosts import Host
 import json
 
@@ -45,7 +45,8 @@ def get_config(env,filename):
         id = flow_info['flow_id']
         source = next((h for h in hosts if h.id == flow_info['flow_src']), None)
 
-        f = Tahoe(id, env, source, flow_info['flow_dest'], flow_info['data_amt'])
+        # f = Tahoe(id, env, source, flow_info['flow_dest'], flow_info['data_amt'])
+        f = Reno(id, env, source, flow_info['flow_dest'], flow_info['data_amt'])
 
         flows.append(f)
 

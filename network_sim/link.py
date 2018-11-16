@@ -57,20 +57,20 @@ class Link:
         Put into the buffer (run deals with transmission delay, so do this
         first) if buffer not full. Otherwise, drop the packet.
         '''
-        print("received packet ", packet.sequenceNumber, self.env.now)
+        print("Link",self.id, "received packet",packet.type, packet.sequenceNumber, self.env.now)
         if self.bufferUsed + packet.size <= self.bufferSize:
-            print("packet in buffer, ", packet.sequenceNumber, self.env.now)
+            print("Link",self.id, "packet in buffer",packet.type, packet.sequenceNumber, self.env.now)
             self.buffer.append(packet)
             self.bufferUsed += packet.size
         else: # Drop the packet
-            print("packet dropped, ", packet.sequenceNumber)
+            print("Link",self.id, "dropped", packet.type, packet.sequenceNumber, self.bufferUsed, self.bufferSize)
             self.packetsDropped += 1
 
         # Wait transmissionTime of the packet, to hold back source.
         # 8 for byte to bit
         # yield self.env.timeout(self.transmissionDelay(packet)) # Not sure if yield is right
 
-        print("send packet", packet.sequenceNumber)
+        print("Link",self.id, "send packet", packet.type, packet.sequenceNumber)
 
     def finishSendingPacket(self, packet):
         self.destination.put(packet)
@@ -94,9 +94,9 @@ class Link:
                 # Get packet (popleft is FIFO)
                 packet = self.buffer.popleft()
 
-                print("send packet", packet.sequenceNumber)
+                print("Link",self.id, "send packet", packet.type,packet.sequenceNumber)
 
-                print("sending packet ", packet.sequenceNumber, "to ", packet.destination)
+                print("Link",self.id, "sending packet ", packet.type, packet.sequenceNumber, "to ", packet.destination)
 
 
                 # Wait transmission delay

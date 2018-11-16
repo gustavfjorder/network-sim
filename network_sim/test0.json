@@ -23,7 +23,7 @@
       "link_id": "L1",
       "link_rate": 10,
       "link_delay": 10,
-      "link_buffer": 64,
+      "link_buffer": 64000,
       "link_source": "H2",
       "link_destination": "H1"
     }

@@ -28,6 +28,8 @@ class Host:
         # If it's an acknowledgement, pass it to flow
         # Otherwise, send ack for the packet
         if(packet.type == 'ACK'):
+            print("in put",packet.ackData["Reno"])
+
             self.flow.ack(packet)
         else:
             # Packet is not an Acknowledgement, need to  send an acknowledgement
@@ -41,6 +43,7 @@ class Host:
                     self.lastPacketReceived[packet.source] = packet.sequenceNumber
 
             ackData = {"Tahoe": self.lastPacketReceived[packet.source] + 1}
+            ackData = {"Reno" : self.lastPacketReceived[packet.source] + 1}
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             self.link.put(ackPacket)
