@@ -19,20 +19,10 @@ class Routers:
         link.put(packet)
         return
 
-    def findFlowForPackage(self, package):
-        for flow in self.flows:
-            if(flow.id == package.flowId):
-                return flow
-
     def put(self, packet):
         # Receive a packet from link
         # Pass it to flow
         flow = self.findFlowForPackage()
 
-
-    def run(self):
-        while (True):
-            # if there is a flow
-            if(self.flow):
-                # send a packet
-                self.flow.send(self)
+    def updateRoutingTable(self, packet):
+        pass 
