@@ -100,6 +100,7 @@ class Routers(nodeParent):
         # Add self to reachable nodes
         minCostsSoFar[self.id] = (0, None)
 
+        # Run Dijkstra
         while reachableNodes != allNodes:
             nextFixed = min(minCostsSoFar)
             fixedCost, fixedPrev = minCostsSoFar[nextFixed]
@@ -115,7 +116,7 @@ class Routers(nodeParent):
                     minCostsSoFar[to] = (fixedCost + cost, nextFixed)
 
         # Ran Dijskra, now extract information by running down the 'previous'
-        # path of reachableNodes
+        # path of reachableNodes and change to the link info
         routingTable = {}
         for dest, prev in reachableNodes:
             prevPrev = prev
@@ -123,8 +124,7 @@ class Routers(nodeParent):
             while nextPrev != self.id:
                 prevPrev = nextPrev
                 nextPrev = reachableNodes[prevPrev][1]
-            routingTable[dest] = prevPrev
-
+            routingTable[dest] = linkFromNode(prevPrev)
 
         # Start using the new routing table.
         self.routingTable = routingTable
@@ -136,12 +136,12 @@ class Routers(nodeParent):
         # Reset the all costs table to know nothing
         self.allCostsTable = []
 
-    def backtrack()
-
-    # Inititalizes another round of routing every refreshRoutingTime, which will
-    # trigger a refresh for all connected routers.
-    # Only one router in the network needs to run this, though all will run it.
     def run_routingInfo(self):
+        '''
+        Inititalizes another round of routing every refreshRoutingTime, which will
+        trigger a refresh for all connected routers.
+        Only one router in the network needs to run this, though all will run it.
+        '''
         while True:
             # Initialize a new routing cycle, if another router hasn't already
             if not self.allCostsTable:
