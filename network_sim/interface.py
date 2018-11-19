@@ -1,6 +1,7 @@
 from link import Link
 from flow import Tahoe
 from hosts import Host
+from routers import Router
 import json
 
 # Takes filename (json) file and outputs a list of hosts, routers, links, flows.
@@ -56,9 +57,10 @@ def get_config(env,filename):
         id = router_info['router_id']
 
         links_list = router_info['links']
-        router_links = ((l for l in links if l.id in links_list \
-                                    and l.source == router_info['router_id']), None)
-        r = Router(env, id, links_list)
+        router_links = [l for l in links if l.id in links_list \
+                                    and l.source == router_info['router_id']]
+        r = Router(env, id, router_links)
+
     # Add source/destination obejcts to links, replacing string IDs
     for link in links:
         source = next((h for h in hosts if h.id == link.source), None)

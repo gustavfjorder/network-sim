@@ -1,14 +1,13 @@
-from packets import Packet, nodeParent
+from packets import Packet
+from nodeParent import nodeParent
 
 class Host(nodeParent):
     # inherits from nodeParent
     def __init__(self,env, name, links):
-        super.__init__()
-        self.env = env
-        self.id = name
-        self.link = self.links[0] # hosts only have one link
+        super(Host, self).__init__(env, name, links)
+        self.link = self.links # hosts only have one link
         self.flow = None
-        sekf.type = "host"
+        self.type = "host"
 
     def addFlow(self, flow):
         '''

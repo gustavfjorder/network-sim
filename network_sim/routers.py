@@ -1,13 +1,15 @@
-import flow, packets, nodeParent
+from packets import Routing
+from nodeParent import nodeParent
+from copy import copy
+from math import inf
 
-class Routers(nodeParent):
+class Router(nodeParent):
     #inherits from nodeParent
-    def __init__(self,env, name, links):
-        super.__init__(self, env, name, links)
+    def __init__(self, env, name, links):
+        super(Router, self).__init__(env, name, links)
         self.type = 'router'
 
-        # Connected nodes
-        self.connectedNodes = {link.destination.id: link for link in self.links}
+
 
         # Form "some node": link, where link is the next link to pass to
         # We will need a way to correlate nodes with links.
@@ -23,13 +25,10 @@ class Routers(nodeParent):
         # These are all the nodes that we have received cost info about
         self.knownNodes = set()
         # Let the routing tables update periodically
-        self.env.process(self.run_routingInfo)
+        self.env.process(self.run_routingInfo())
         # Routing refresh period
         self.refreshRoutingTime = 5000   # 5 sec, which is what the test cases do
 
-
-    def addFlow(self,flow):
-        self.flows.append(self, flow)
 
     def send(self, packet):
         dest = packet.destination
@@ -40,10 +39,10 @@ class Routers(nodeParent):
 
     def put(self, packet):
         # Receive a packet from a link
-        if (packet.type = "routing"):
+        if (packet.type == "routing"):
             addRoutingTableInfo(packet)
         else:
-            pass
+            self.send(packet)
 
     ### Dynamic routing functions
 
@@ -80,7 +79,6 @@ class Routers(nodeParent):
                 link.put(packet)
 
 
-
     def createRoutingTable(self):
         '''
         Constructs a shortest path using Dijsktra.
@@ -89,8 +87,17 @@ class Routers(nodeParent):
         Warning: This will only work for connected networks.
         '''
 
+        # Helper function
+        def linkFromNode(self, node):
+            '''
+            Returns a connected link object that has node at the other side
+            or None if the node isn't connected directly.
+            '''
+            return next((link for link in self.links if link.destination.id == node), None)
+
+
         # All nodes we could theoretically get to.
-        allNodes = set([dest for from, dest, cost in self.allCostsTable])
+        allNodes = set([dest for source, dest, cost in self.allCostsTable])
 
         # Format {final destination: (cost, prev)}
         minCostsSoFar = {node: (inf, None) for node in allNodes}
@@ -108,10 +115,10 @@ class Routers(nodeParent):
             # Remove this node from unfound
             del minCostsSoFar[nextFixed]
 
-            for from, to, cost in [i for i in self.allCostsTable if i[0]=nextFixed]:
+            for source, to, cost in [i for i in self.allCostsTable if i[0] == nextFixed]:
                 # If the to is still unsettled and the cost using nextFixed is
                 # smaller than the current cost,
-                if to in minCostsSoFar
+                if to in minCostsSoFar \
                    and fixedCost + cost < minCostsSoFar[to][0]:
                     minCostsSoFar[to] = (fixedCost + cost, nextFixed)
 
@@ -145,31 +152,32 @@ class Routers(nodeParent):
         while True:
             # Initialize a new routing cycle, if another router hasn't already
             if not self.allCostsTable:
-                self.sendMyInfo(self)
+                self.sendMyInfo()
 
             # Wait some time
             yield self.env.timeout(refreshRoutingTime)
 
-    # Helper functions
+    # Helper functions for dynamic routing
 
-    def myCosts(self):
-        # Returns a dictionary of {nodeID: (cost, isHost)}
+    def sendMyInfo(self):
+        '''
+        Sends data to connected routers about local link costs and connected
+        hosts/routers.
+        Data is of form (from, {to: (cost, isHost)}), where from is self.id.
+        '''
+
+        # Refresh the router's costs
+        # A dictionary of {nodeID: (cost, isHost)}
         # Could be more efficient
         costs = {}
         for link in self.links:
             cost = 5 * link.bufferUsed / link.bufferSize + link.propagationDelay
             costs[link.destination.id] = (cost, link.destination.type == 'host')
-        return costs
 
-    def sendMyInfo(self):
-
-        # Refresh the router's costs
-        costs = self.myCosts(self)
-
-        #  Data is of form (from, {to: cost})
+        # Data is of form (from, {to: (cost, isHost)}),
+        # where from is self.id.
         data = (self.id, copy(costs))
-        type = "routing"
-        packet = Packet()
+        packet = Routing(self.id, data)
 
         # Send the packet to all neighbors
         for link in self.links:
@@ -189,18 +197,8 @@ class Routers(nodeParent):
         # Update known/unknown nodes
         # Add newly discovered routers to our info.
         # packet.data[1] has both cost info (index 0) and isHost (bool, index 1)
-        newRouters = set([i[0] for i in packet.data[1] if not i[1]]):
+        newRouters = set([i[0] for i in packet.data[1] if not i[1]])
         # Combine all routers found with the recently discovered routers
         self.allRouters = self.allRouters | newRouters
         # Update the nodes we have info about (we just got a new packet's data)
         self.knownNodes.add(packet.data[0])
-
-    def linkFromNode(self, node):
-        '''
-        Returns a connected link object that has node at the other side
-        or None if the node isn't connected directly.
-        '''
-        if node in self.connectedNodes:
-            return self.connectedNodes[node]
-        else:
-            return None
