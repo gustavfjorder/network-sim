@@ -56,9 +56,10 @@ def get_config(env,filename):
         id = router_info['router_id']
 
         links_list = router_info['links']
-        router_links = ((l for l in links if l.id in links_list \
+        router_links = next((l for l in links if l.id in links_list \
                                     and l.source == router_info['router_id']), None)
         r = Router(env, id, links_list)
+
     # Add source/destination obejcts to links, replacing string IDs
     for link in links:
         source = next((h for h in hosts if h.id == link.source), None)
