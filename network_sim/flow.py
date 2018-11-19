@@ -149,7 +149,6 @@ class Reno:
         # Start running the thing
         self.action = env.process(self.run())
 
-    # temp
     def slowUpdate(self):
         assert self.phase.phase == "Slow Start"
 
@@ -218,6 +217,7 @@ class Reno:
                 self.windowSize = self.windowSize/2
 
         self.setWindow(nextExpectedPacketNumber)
+        #yield with a timeout
 
     def send(self, source):
 
@@ -232,9 +232,28 @@ class Reno:
         """
         yield self.env.timeout(time)
 
-    def run(self):
+    def sendLoop(self): #needs to be worked out
         while not self.done:
-            if len(self.unacknowledged_packets)==0:
+            self.send(self.source)
+
+    def run(self):
+        """Everything till the while loop is just for the first packet sent"""
+        self.send(self.source)
+
+        try:
+            yield self.env.process(self.timeOut(self.ackTimeOut))
+            run(self)
+
+        except simpy.Interrupt:
+            self.sendAction = env.process(self.sendLoop())
+            
+            while not self.done:
+                
+                #trigger
+
+
+        while not self.done:
+            if len(self.unacknowledged_packets) == 0:
                 self.send(self.source)
             try:
                yield self.env.process(self.timeOut(self.ackTimeOut))
