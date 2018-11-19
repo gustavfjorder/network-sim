@@ -1,11 +1,14 @@
-from packets import Packet
+from packets import Packet, nodeParent
 
-class Host:
-    def __init__(self,env, name, link):
+class Host(nodeParent):
+    # inherits from nodeParent
+    def __init__(self,env, name, links):
+        super.__init__()
         self.env = env
         self.id = name
-        self.link = link
+        self.link = self.links[0] # hosts only have one link
         self.flow = None
+        sekf.type = "host"
 
     def addFlow(self, flow):
         '''
@@ -20,6 +23,7 @@ class Host:
         return
 
     def put(self, packet):
+        super.put(self, packet)
         # Receive a packet from link
         # Pass it to flow
         # receive ack OR send ack if it isn't an ack

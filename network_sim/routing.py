@@ -46,7 +46,7 @@ def addRoutingTableInfo(packet):
 
     # If we haven't yet received this packet information, use it. Otherwise
     # ignore.
-    if packet.data[0] in self.knownNodes:
+    if packet.data[0] not in self.knownNodes:
 
         # Add the packet to the all costs table and update lists of nodes that
         # exist in the network and nodes that we have costs from.
