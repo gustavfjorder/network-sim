@@ -155,7 +155,7 @@ class Router(nodeParent):
                 self.sendMyInfo()
 
             # Wait some time
-            yield self.env.timeout(refreshRoutingTime)
+            yield self.env.timeout(self.refreshRoutingTime)
 
     # Helper functions for dynamic routing
 
@@ -191,14 +191,14 @@ class Router(nodeParent):
         Takes data in the form (from, {to: cost}), and adds this info to
         self.allCostsTable.
         '''
-        for to, (cost, isHost) in data[1].items:
+        for to, (cost, isHost) in data[1].items():
             self.allCostsTable.append((data[0], to, cost))
 
         # Update known/unknown nodes
         # Add newly discovered routers to our info.
         # packet.data[1] has both cost info (index 0) and isHost (bool, index 1)
-        newRouters = set([i[0] for i in packet.data[1] if not i[1]])
+        newRouters = set([i[0] for i in data[1] if not i[1]])
         # Combine all routers found with the recently discovered routers
         self.allRouters = self.allRouters | newRouters
         # Update the nodes we have info about (we just got a new packet's data)
-        self.knownNodes.add(packet.data[0])
+        self.knownNodes.add(data[0])

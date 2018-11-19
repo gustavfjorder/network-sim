@@ -1,4 +1,4 @@
-from packets import Packet
+from packets import Data
 from math import ceil
 import simpy
 
@@ -38,7 +38,7 @@ class Tahoe:
         output = []
 
         for i in range(N):
-            output.append(Packet(self.source, self.destination, i+1, 'Data', data_size))
+            output.append(Data(self.source, self.destination, i+1))
 
         return output
 

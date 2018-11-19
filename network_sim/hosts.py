@@ -1,4 +1,4 @@
-from packets import Packet
+from packets import ACK
 from nodeParent import nodeParent
 
 class Host(nodeParent):
@@ -22,17 +22,17 @@ class Host(nodeParent):
         return
 
     def put(self, packet):
-        super.put(self, packet)
         # Receive a packet from link
         # Pass it to flow
         # receive ack OR send ack if it isn't an ack
+        # Ignore routing packets
         if(packet.type == 'ACK'):
             ack(self.env, self.flow, packet)
-        else:
-            # Packet is not an Acknowledgement, need to  send an acknowledgement
+        elif( packet.type == 'data'):
+            # If Packet is not an Acknowledgement, need to  send an acknowledgement
             # new destination is the source, get this from the flow\
             ackData = None  # initalize this later
-            ackPacket = Packet(self, packet.destination, packet.source, \
+            ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             self.flow.put(ackPacket)
 

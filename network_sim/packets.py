@@ -14,6 +14,9 @@ class Data:
     def __init__(self,source,destination,sequenceNumber):
         Packet.__init__(self,source,destination,'data',data_size)
         self.sequenceNumber = sequenceNumber
+    def __str__(self):
+        return "Data packet #" + str(self.sequenceNumber)
+
 
 
 class ACK(Packet):
@@ -22,9 +25,13 @@ class ACK(Packet):
         self.sequenceNumber = sequenceNumber
         self.ackData = ackData
         #expecting ackData['Tahoe'] and ackData['Reno']
+    def __str__(self):
+        return "ACK packet # " +  str(self.sequenceNumber)
 
 class Routing(Packet):
-    def __init(self, source, data):
+    def __init__(self, source, data):
         # TODO: None destination
         Packet.__init__(self, source, None, 'routing', routing_size)
         self.data = data
+    def __str__(self):
+        return "Routing packet from " +  self.source
