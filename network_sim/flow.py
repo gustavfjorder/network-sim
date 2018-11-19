@@ -117,7 +117,7 @@ class TCPPhase:
         self.phase = "Slow Start"
         self.halfW = None
 
-    def setFast(self): 
+    def setFast(self):
         assert self.phase == "Slow Start"
         self.phase = "CA"
 
@@ -126,7 +126,7 @@ class Reno:
     # TODO:
     implement timeout properly
     slow start / congestion avoidance
-    
+
     """
     def __init__(self, name, env, source, destination, size):
         self.id = name
@@ -142,7 +142,7 @@ class Reno:
         self.ackTimeOut = 20
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
-        self.unacknowledged_packets = []
+        self.unacknowledged_packets = set()
 
         self.phase = TCPPhase()
 
@@ -159,7 +159,7 @@ class Reno:
             else:
                 self.windowSize += 1
                 yield
-                
+
     def makePackets(self, size):
         """
         For a give size of packets, I will intialize an array of Packet
@@ -200,11 +200,11 @@ class Reno:
     def put(self, packet):
         nextExpectedPacketNumber = self.packetProcess(packet)
 
-        print(self.id,"expected:",self.unacknowledged_packets[0]+1)
+        print(self.id,"expected:",min(self.unacknowledged_packets[0])+1)
         print(self.id,"got     :",nextExpectedPacketNumber)
-        if nextExpectedPacketNumber == self.unacknowledged_packets[0]+1:
+        if nextExpectedPacketNumber == min(self.unacknowledged_packets)+1:
             # print("deleting unack'ed packet",self.unacknowledged_packets[0])
-            del self.unacknowledged_packets[0]
+            self.unacknowledged_packets.remove(nextExpectedPacketNumber-1)
             self.windowSize += 1/self.windowSize
         elif nextExpectedPacketNumber > self.num_packets:
             print("DONE")
@@ -224,7 +224,9 @@ class Reno:
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
             source.send(self.packets[i])
-            self.unacknowledged_packets.append(self.packets[i].sequenceNumber)
+            assert self.packets[i].sequenceNumber not in self.unacknowledged_packets
+            self.unacknowledged_packets.add(self.packets[i].sequenceNumber)
+
 
     def timeOut(self, time):
         """
@@ -232,9 +234,11 @@ class Reno:
         """
         yield self.env.timeout(time)
 
-    def sendLoop(self): #needs to be worked out
+    def sendLoop(self):
         while not self.done:
-            self.send(self.source)
+            if len(self.unacknowledged_packets) <= self.windowSize:
+                self.send(self.source)
+
 
     def run(self):
         """Everything till the while loop is just for the first packet sent"""
@@ -246,9 +250,9 @@ class Reno:
 
         except simpy.Interrupt:
             self.sendAction = env.process(self.sendLoop())
-            
+
             while not self.done:
-                
+
                 #trigger
 
 
@@ -261,5 +265,3 @@ class Reno:
                 print("interrupted")
                 pass
         print('Done')
-
-
