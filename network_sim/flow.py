@@ -28,6 +28,7 @@ class Tahoe:
         self.RTT = [-1 for i in range(self.num_packets)]
 
         # Start running the thing
+        self.timeOutFlag = env.event()
         self.action = env.process(self.run())
 
     def makePackets(self, size):
@@ -195,8 +196,14 @@ class Reno:
         """
         print("Flow",self.id,"in ack method",ackPacket.ackData["Reno"])
         self.put(ackPacket)
-        # self.action.interrupt()
+        self.action.interrupt()
 
+        try:
+            yield self.env.process(self.timeOut(self.ackTimeOut))
+            self.timeOutFlag.succeed()
+        except simpy.Interrupt:
+            pass
+            
     def put(self, packet):
         nextExpectedPacketNumber = self.packetProcess(packet)
 
@@ -245,21 +252,17 @@ class Reno:
             run(self)
 
         except simpy.Interrupt:
+
             self.sendAction = env.process(self.sendLoop())
             
             while not self.done:
+                yield self.timeOutFlag
+                self.windowSize = 1
+                self.setWindow(min(self.unacknowledged_packets))
+
                 
-                #trigger
+                
 
-
-        while not self.done:
-            if len(self.unacknowledged_packets) == 0:
-                self.send(self.source)
-            try:
-               yield self.env.process(self.timeOut(self.ackTimeOut))
-            except simpy.Interrupt:
-                print("interrupted")
-                pass
-        print('Done')
+ 
 
 
