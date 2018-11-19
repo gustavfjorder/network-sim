@@ -107,6 +107,19 @@ class Tahoe:
                 # print('Got an acknowledgement :)')
         print('Done')
 
+class TCPPhase:
+    def __init__(self):
+        self.phase == "Slow Start"
+        self.halfW = None
+
+    def setSlow(self):
+        assert self.phase == "CA"
+        self.phase = "Slow Start"
+        self.halfW = None
+
+    def setFast(self): 
+        assert self.phase == "Slow Start"
+        self.phase = "CA"
 
 class Reno:
     """
@@ -131,9 +144,23 @@ class Reno:
         self.RTT = [-1 for i in range(self.num_packets)]
         self.unacknowledged_packets = []
 
+        self.phase = TCPPhase()
+
         # Start running the thing
         self.action = env.process(self.run())
 
+    # temp
+    def slowUpdate(self):
+        assert self.phase.phase == "Slow Start"
+
+        while self.phase.phase == "Slow Start":
+            if halfW and halfW <= self.windowSize:
+                self.phase = "CA"
+                return
+            else:
+                self.windowSize += 1
+                yield
+                
     def makePackets(self, size):
         """
         For a give size of packets, I will intialize an array of Packet
@@ -215,3 +242,5 @@ class Reno:
                 print("interrupted")
                 pass
         print('Done')
+
+
