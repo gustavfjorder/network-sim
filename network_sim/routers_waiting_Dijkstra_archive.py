@@ -10,6 +10,7 @@ class Router(nodeParent):
         self.type = 'router'
 
 
+
         # Form "some node": link, where link is the next link to pass to
         # We will need a way to correlate nodes with links.
         self.routingTable = {}
@@ -19,8 +20,10 @@ class Router(nodeParent):
         # For during construction of routing table
         # Elements in the allCostsTable are in the form (from, to, cost)
         self.allCostsTable = []
-        # List of the most recent routing packet received {source: timestamp}
-        self.recentRoutingPackets = {}
+        # These are all the routers in the graph that we know exist. Set so no duplicates.
+        self.allRouters = set()
+        # These are all the nodes that we have received cost info about
+        self.knownNodes = set()
         # Let the routing tables update periodically
         self.env.process(self.run_routingInfo())
         # Routing refresh period
@@ -42,34 +45,34 @@ class Router(nodeParent):
             self.send(packet)
 
     ### Dynamic routing functions
-    # TODO: addToAllCosts. Better way of preventing infinite loop packets
-    def addRoutingTableInfo(self, packet):
+
+    def addRoutingTableInfo(packet):
         '''
         Receive a packet with routing table info.
         Called every time a routing packet is received.
         '''
 
-        pckt_source = packet.data[0]
+        # If we haven't sent our own info, do that, probably
+        # TODO: This is not a perfect way to manage this, but fine
+        if not self.allCostsTable:
+            self.sendMyInfo(self)
 
-        # If we haven't received a routing packet from this source,
-        # add it to our recentRoutingPackets dictionary.
-        if pckt_source not in self.recentRoutingPackets:
-            self.recentRoutingPackets[pckt_source] = packet.timeSent - 1
-
-        # If this packet was generated after the one we know of,
-        # update our knowledge.
-        if self.recentRoutingPackets[pckt_source] < packet.timeSent:
-
-            # Update info about the most recent routing packet from this
-            # packet's source.
-            self.recentRoutingPackets[pckt_source] = packet.timeSent
+        # If we haven't yet received this packet information, use it. Otherwise
+        # ignore.
+        if packet.data[0] not in self.knownNodes:
 
             # Add the packet to the all costs table and update lists of nodes that
             # exist in the network and nodes that we have costs from.
             self.addToAllCosts(packet.data)
 
-            # Re-run Dijkstra. TODO: Only when something changes?
-            self.createRoutingTable()
+            # The node we haven't received costs from will be empty when we have
+            # a full view of the network
+            unknownNodes = self.allRouters - self.knownNodes
+
+            # If we have all the info of all known routers, then run Dijkstra
+            # Otherwise, wait until more packets have been received
+            if not unknownNodes:
+                createRoutingTable(self)
 
             # Pass on the info to all other nodes connected
             for link in self.links:
@@ -85,7 +88,7 @@ class Router(nodeParent):
         '''
 
         # Helper function
-        def linkFromNode(node):
+        def linkFromNode(self, node):
             '''
             Returns a connected link object that has node at the other side
             or None if the node isn't connected directly.
@@ -102,13 +105,13 @@ class Router(nodeParent):
         reachableNodes = {}
 
         # Add self to reachable nodes
-        minCostsSoFar[self.id] = (0, self.id)
+        minCostsSoFar[self.id] = (0, None)
 
         # Run Dijkstra
-        while reachableNodes.keys() != allNodes:
+        while reachableNodes != allNodes:
             nextFixed = min(minCostsSoFar)
             fixedCost, fixedPrev = minCostsSoFar[nextFixed]
-            reachableNodes[nextFixed] = fixedPrev
+            reachableNodes[nextFixed] = (fixedCost, fixedPrev)
             # Remove this node from unfound
             del minCostsSoFar[nextFixed]
 
@@ -122,14 +125,12 @@ class Router(nodeParent):
         # Ran Dijskra, now extract information by running down the 'previous'
         # path of reachableNodes and change to the link info
         routingTable = {}
-        print(reachableNodes)
-        for dest, prev in reachableNodes.items():
+        for dest, prev in reachableNodes:
             prevPrev = prev
             nextPrev = prev
             while nextPrev != self.id:
-                print(prevPrev, nextPrev)
                 prevPrev = nextPrev
-                nextPrev = reachableNodes[prevPrev]
+                nextPrev = reachableNodes[prevPrev][1]
             routingTable[dest] = linkFromNode(prevPrev)
 
         # Start using the new routing table.
@@ -176,24 +177,28 @@ class Router(nodeParent):
         # Data is of form (from, {to: (cost, isHost)}),
         # where from is self.id.
         data = (self.id, copy(costs))
-        packet = Routing(self.id, data, self.env.now)
+        packet = Routing(self.id, data)
 
         # Send the packet to all neighbors
         for link in self.links:
             link.put(packet)
 
-        # Pretend like we just received this packet to update routing table.
-        self.addRoutingTableInfo(packet)
+        # Update the all costs table to include my own costs
+        self.addToAllCosts(data)
 
     def addToAllCosts(self, data):
         '''
         Takes data in the form (from, {to: cost}), and adds this info to
         self.allCostsTable.
         '''
-
-        # Remove old cost data for the source of this packet
-        self.allCostsTable = [i for i in self.allCostsTable if i[0] != data[0]]
-
-        # Add new cost data
         for to, (cost, isHost) in data[1].items():
             self.allCostsTable.append((data[0], to, cost))
+
+        # Update known/unknown nodes
+        # Add newly discovered routers to our info.
+        # packet.data[1] has both cost info (index 0) and isHost (bool, index 1)
+        newRouters = set([i[0] for i in data[1] if not i[1]])
+        # Combine all routers found with the recently discovered routers
+        self.allRouters = self.allRouters | newRouters
+        # Update the nodes we have info about (we just got a new packet's data)
+        self.knownNodes.add(data[0])

@@ -2,6 +2,7 @@ import simpy
 import interface
 import sys
 from monitor import Monitor, show_results, export_results
+import simpy.util
 
 
 def runSimulator(input_file):
@@ -14,7 +15,9 @@ def runSimulator(input_file):
         env.process(link.run())
 
     for flow in flows:
-        env.process(flow.run())
+        simpy.util.start_delayed(env, \
+                             flow.run(), \
+                             5000)
 
     monitor = Monitor(links, flows)
 

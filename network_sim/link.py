@@ -54,15 +54,13 @@ class Link:
         Put into the buffer (run deals with transmission delay, so do this
         first) if buffer not full. Otherwise, drop the packet.
         '''
-        print("received packet ", packet, self.env.now)
-        print(packet.size + 1)
-        print(packet.size + 1)
+        print(self.id, "received ", packet, self.env.now)
         if self.bufferUsed + packet.size <= self.bufferSize:
-            print("packet in buffer, ", packet, self.env.now)
+            print("in buffer ", self.id, " ", packet, self.env.now)
             self.buffer.append(packet)
             self.bufferUsed += packet.size
         else: # Drop the packet
-            print("packet dropped, ", packet)
+            print(self.id, " dropped, ", packet)
             self.packetsDropped += 1
 
         # Wait transmissionTime of the packet, to hold back source.
@@ -89,10 +87,7 @@ class Link:
                 # Get packet (popleft is FIFO)
                 packet = self.buffer.popleft()
 
-                print("send packet", packet)
-
-                print("sending packet ", packet, "to ", self.destination.id)
-
+                print(self.id, "send packet", packet, "to ", self.destination.id)
 
                 # Wait transmission delay
                 yield self.env.timeout(self.transmissionDelay(packet))

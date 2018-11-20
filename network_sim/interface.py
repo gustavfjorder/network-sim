@@ -15,8 +15,10 @@ def get_config(env,filename):
         return
 
     hosts = []
+    routers = []
     links = []
     flows = []
+    nodes = []
 
     # create link objects
     for link in test_data["links"]:
@@ -61,15 +63,17 @@ def get_config(env,filename):
                                     and l.source == router_info['router_id']]
         r = Router(env, id, router_links)
 
+        routers.append(r)
+
     # Add source/destination obejcts to links, replacing string IDs
+    nodes = routers + hosts
     for link in links:
-        source = next((h for h in hosts if h.id == link.source), None)
-        destination = next((h for h in hosts if h.id == link.destination), None)
+        source = next((n for n in nodes if n.id == link.source), None)
+        destination = next((n for n in nodes if n.id == link.destination), None)
         link.source = source
         link.destination = destination
 
-    print(hosts, links, flows)
-    return (hosts, links, flows, router)
+    return (hosts, links, flows, routers)
 
 
 

@@ -29,9 +29,11 @@ class ACK(Packet):
         return "ACK packet # " +  str(self.sequenceNumber)
 
 class Routing(Packet):
-    def __init__(self, source, data):
+    def __init__(self, source, data, timeSent):
         # TODO: None destination
         Packet.__init__(self, source, None, 'routing', routing_size)
         self.data = data
+        self.timeSent = timeSent
+        
     def __str__(self):
         return "Routing packet from " +  self.source
