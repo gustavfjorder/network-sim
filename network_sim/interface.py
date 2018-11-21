@@ -73,20 +73,4 @@ def get_config(env,filename):
         link.source = source
         link.destination = destination
 
-<<<<<<< HEAD
     return (hosts, links, flows, routers)
-=======
-    return (hosts, links, flows)
->>>>>>> refs/remotes/origin/master
-
-
-
-def main():
-    env = 0
-    input_file ="test0.json"#{} input("Test name: ")
-    test_data = get_config(env,input_file)
-
-
-
-if __name__ == "__main__":
-    main()

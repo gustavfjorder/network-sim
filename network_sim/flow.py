@@ -26,13 +26,8 @@ class Tahoe:
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
 
-<<<<<<< HEAD
         # Start running the flow, delayed
         self.action = simpy.util.start_delayed(env, self.run(), 1000)
-=======
-        # Start running the thing
-        self.action = env.process(self.run())
->>>>>>> refs/remotes/origin/master
 
     def makePackets(self, size):
         """
@@ -46,11 +41,7 @@ class Tahoe:
         output = []
 
         for i in range(N):
-<<<<<<< HEAD
             output.append(Data(self.source.id, self.destination, i+1))
-=======
-            output.append(Packet(self.source.id, self.destination, i+1, 'Data', data_size))
->>>>>>> refs/remotes/origin/master
 
         return output
 

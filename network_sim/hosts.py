@@ -29,11 +29,7 @@ class Host:
         # Otherwise, send ack for the packet
         if(packet.type == 'ACK'):
             self.flow.ack(packet)
-<<<<<<< HEAD
         elif(packet.type=='data'):
-=======
-        else:
->>>>>>> refs/remotes/origin/master
             # Packet is not an Acknowledgement, need to  send an acknowledgement
             # new destination is the source, get this from the flow
 
@@ -48,11 +44,8 @@ class Host:
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             self.link.put(ackPacket)
-<<<<<<< HEAD
         # So that this is a generator.
         yield self.env.timeout(0)
-=======
->>>>>>> refs/remotes/origin/master
 
 
     def run(self):
@@ -61,11 +54,8 @@ class Host:
             if(self.flow):
                 # send a packet
                 self.flow.send(self)
-<<<<<<< HEAD
-=======
 
 
 
 
 # host should call recieve in Flow
->>>>>>> refs/remotes/origin/master
