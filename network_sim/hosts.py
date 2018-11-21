@@ -25,13 +25,14 @@ class Host:
     def put(self, packet):
         # Receive a packet from link
 
+        print(self.id, "receive ", packet)
         # If it's an acknowledgement, pass it to flow
         # Otherwise, send ack for the packet
         if(packet.type == 'ACK'):
             print("in put",packet.ackData["Reno"])
 
             self.flow.ack(packet)
-        else:
+        elif(packet.type=='data'):
             # Packet is not an Acknowledgement, need to  send an acknowledgement
             # new destination is the source, get this from the flow
 

@@ -1,6 +1,6 @@
-from packets import Packet
+from packets import Data
 from math import ceil
-import simpy
+import simpy, simpy.util
 import math
 from collections import defaultdict
 
@@ -14,7 +14,7 @@ class Tahoe:
     """
     #Implementation of Go Back N
     """
-    def __init__(self, name, env, source, destination, size):
+    def __init__(self, name, env, source, destination, size, startTime):
         self.id = name
         self.env = env
 
@@ -30,23 +30,29 @@ class Tahoe:
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
 
-        # Start running the thing
         self.timeOutFlag = env.event()
-        self.action = env.process(self.run())
+
+        # Start running the flow, delayed
+        self.action = None
+        simpy.util.start_delayed(self.env, self.startRunning(), startTime)
+
+    def startRunning(self):
+        self.action = self.env.process(self.run())
+        yield self.env.timeout(0)
 
     def makePackets(self, size):
         """
         For a give size of packets, I will intialize an array of Packet
         classes to send.
         """
-        print(size, data_size, type(size), type(data_size))
+
         size = size * 1024 * 1024  # In bytes
         N = ceil(size / data_size)
 
         output = []
 
         for i in range(N):
-            output.append(Packet(self.source.id, self.destination, i+1, 'Data', data_size))
+            output.append(Data(self.source.id, self.destination, i+1))
 
         return output
 
@@ -64,8 +70,6 @@ class Tahoe:
         1 indexed while arrays are 0 indexed.
         """
         self.windowIndex = (start - 1, min(start - 1 + self.windowSize - 1, self.num_packets - 1))
-
-
 
     # This should be what the host uses to interrupt flow sortaa
     def ack(self, ackPacket):
@@ -89,13 +93,13 @@ class Tahoe:
         else:
             self.setWindow(nextExpectedPacketNumber)
 
-    def send(self, source):
+    def send(self):
         """
         Send all packets in the window.
         """
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
-            source.send(self.packets[i])
+            self.source.send(self.packets[i])
 
     def timeOut(self, time):
         """
@@ -105,7 +109,7 @@ class Tahoe:
 
     def run(self):
         while not self.done:
-            self.send(self.source)
+            self.send()
             try:
                 yield self.env.process(self.timeOut(self.ackTimeOut))
 

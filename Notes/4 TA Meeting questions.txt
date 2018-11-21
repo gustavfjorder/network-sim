@@ -1,0 +1,1 @@
+When we update the window size by doing cwnd += 1/cwnd, how do we deal with fractions?

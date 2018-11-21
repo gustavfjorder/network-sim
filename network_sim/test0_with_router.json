@@ -13,7 +13,7 @@
     },
     "host2": {
       "host_id": "H2",
-      "link_id": "L1"
+      "link_id": "L2"
     }
   },
   "links": {
@@ -21,7 +21,7 @@
       "link_id": "L1",
       "link_rate": 10,
       "link_delay": 10,
-      "link_buffer": 64,
+      "link_buffer": 64000,
       "link_source": "H1",
       "link_destination": "R1"
     },
@@ -29,7 +29,7 @@
       "link_id": "L1",
       "link_rate": 10,
       "link_delay": 10,
-      "link_buffer": 64,
+      "link_buffer": 64000,
       "link_source": "R1",
       "link_destination": "H1"
     },
@@ -37,7 +37,7 @@
       "link_id": "L2",
       "link_rate": 10,
       "link_delay": 10,
-      "link_buffer": 64,
+      "link_buffer": 64000,
       "link_source": "H2",
       "link_destination": "R1"
     },
@@ -45,7 +45,7 @@
       "link_id": "L2",
       "link_rate": 10,
       "link_delay": 10,
-      "link_buffer": 64,
+      "link_buffer": 64000,
       "link_source": "R1",
       "link_destination": "H2"
     }
@@ -56,7 +56,7 @@
       "flow_src": "H1",
       "flow_dest": "H2",
       "data_amt": 20,
-      "flow_start": "1"
+      "flow_start": 1000
     }
   }
 }

@@ -34,6 +34,9 @@ class Link:
         self.bitsSent = 0
         self.packetsDropped = 0
 
+        # Start running link
+        self.action = self.env.process(self.run())
+
     def transmissionDelay(self, packet):
         # 8 for byte to bit
         # 10^6 for Mbps to bps
@@ -60,10 +63,11 @@ class Link:
         print("Link",self.id, "received packet",packet.type, packet.sequenceNumber, self.env.now)
         if self.bufferUsed + packet.size <= self.bufferSize:
             print("Link",self.id, "packet in buffer",packet.type, packet.sequenceNumber, self.env.now)
+            #print(self.id, "in buffer: ", packet, self.env.now)
             self.buffer.append(packet)
             self.bufferUsed += packet.size
         else: # Drop the packet
-            print("Link",self.id, "dropped", packet.type, packet.sequenceNumber, self.bufferUsed, self.bufferSize)
+            print(self.id, " dropped, ", packet)
             self.packetsDropped += 1
 
         # Wait transmissionTime of the packet, to hold back source.
@@ -97,7 +101,7 @@ class Link:
                 print("Link",self.id, "send packet", packet.type,packet.sequenceNumber)
 
                 print("Link",self.id, "sending packet ", packet.type, packet.sequenceNumber, "to ", packet.destination)
-
+                #print(self.id, "transmitting", packet, "to", self.destination.id)
 
                 # Wait transmission delay
                 yield self.env.timeout(self.transmissionDelay(packet))
@@ -106,6 +110,8 @@ class Link:
 
                 # Monitoring
                 self.bitsSent += packet.size
+
+                print(self.id, "sending", packet, "to", self.destination.id)
 
                 # Pass to router after propagationDelay time (but don't
                 # wait).

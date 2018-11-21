@@ -1,6 +1,7 @@
 from link import Link
 from flow import Tahoe,Reno
 from hosts import Host
+from routers import Router
 import json
 
 # Takes filename (json) file and outputs a list of hosts, routers, links, flows.
@@ -14,8 +15,10 @@ def get_config(env,filename):
         return
 
     hosts = []
+    routers = []
     links = []
     flows = []
+    nodes = []
 
     # create link objects
     for link in test_data["links"]:
@@ -34,6 +37,7 @@ def get_config(env,filename):
         host_info = test_data['hosts'][host]
         link = next((l for l in links if l.id == test_data['hosts'][host]['link_id'] \
                                     and l.source == host_info['host_id']), None)
+        assert link != None
         h = Host(env, host_info['host_id'], link)
         hosts.append(h)
 
@@ -50,23 +54,26 @@ def get_config(env,filename):
 
         flows.append(f)
 
+    # create routers
+    for router in test_data['routers']:
+        router_info = test_data['routers'][router]
+
+        id = router_info['router_id']
+
+        links_list = router_info['links']
+        router_links = [l for l in links if l.id in links_list \
+                                    and l.source == router_info['router_id']]
+        assert len(router_links) == len(router_info['links'])
+        r = Router(env, id, router_links)
+
+        routers.append(r)
+
     # Add source/destination obejcts to links, replacing string IDs
+    nodes = routers + hosts
     for link in links:
-        source = next((h for h in hosts if h.id == link.source), None)
-        destination = next((h for h in hosts if h.id == link.destination), None)
+        source = next((n for n in nodes if n.id == link.source), None)
+        destination = next((n for n in nodes if n.id == link.destination), None)
         link.source = source
         link.destination = destination
 
-    return (hosts, links, flows)
-
-
-
-def main():
-    env = 0
-    input_file ="test0.json"#{} input("Test name: ")
-    test_data = get_config(env,input_file)
-
-
-
-if __name__ == "__main__":
-    main()
+    return (hosts, links, flows, routers)
