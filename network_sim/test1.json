@@ -1,5 +1,23 @@
 {
   "test": "test1",
+  "routers":{
+    "router1":{
+      "router_id" : "R1",
+      "links": ["L0", "L1", "L2"]
+    },
+    "router2":{
+      "router_id" : "R2",
+      "links": ["L1", "L3"]
+    },
+    "router3":{
+      "router_id" : "R3",
+      "links": ["L2", "L4"]
+    },
+    "router4":{
+      "router_id" : "R4",
+      "links": ["L3", "L4", "L5"]
+    }
+  },
   "hosts": {
     "host1": {
       "host_id": "H1",
@@ -7,119 +25,111 @@
     },
     "host2": {
       "host_id": "H2",
-      "link_id": "L1"
+      "link_id": "L5"
     }
   },
+  "link_id": "L1",
+  "link_rate": 10,
+  "link_delay": 10,
+  "link_buffer": 64000,
+  "link_source": "H1",
+  "link_destination": "R1"
   "links": {
     "link0": {
       "link_id": "L0",
-      "link_rate": "12.5",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 12.5,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "H1",
       "link_destination": "R1"
     },
     "link0b": {
       "link_id": "L0",
-      "link_rate": "12.5",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 12.5,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R1",
       "link_destination": "H1"
     },
     "link1": {
       "link_id": "L1",
-      "link_rate": "10",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R1",
       "link_destination": "R2"
     },
     "link1b": {
       "link_id": "L1",
-      "link_rate": "10",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R2",
       "link_destination": "R1"
     },
     "link2": {
       "link_id": "L2",
-      "link_rate": "10",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R1",
       "link_destination": "R3"
     },
     "link2b": {
       "link_id": "L2",
-      "link_rate": "10",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R3",
       "link_destination": "R1"
     },
     "link3": {
       "link_id": "L3",
-      "link_rate": "10",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R2",
       "link_destination": "R4"
     },
     "link3b": {
       "link_id": "L3",
-      "link_rate": "10",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R4",
       "link_destination": "R2"
     },
     "link4": {
       "link_id": "L4",
-      "link_rate": "10",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R3",
       "link_destination": "R4"
     },
     "link4b": {
       "link_id": "L4",
-      "link_rate": "10",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 10,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R4",
       "link_destination": "R3"
     },
     "link5": {
       "link_id": "L5",
-      "link_rate": "12.5",
-      "link_delay": "10",
-      "link_buffer": "64",
+      "link_rate": 12.5,
+      "link_delay": 10,
+      "link_buffer": 64000,
       "link_source": "R4",
       "link_destination": "H2"
     },
     "link5b": {
         "link_id": "L5",
-        "link_rate": "12.5",
-        "link_delay": "10",
-        "link_buffer": "64",
+        "link_rate": 12.5,
+        "link_delay": 10,
+        "link_buffer": 64000,
         "link_source": "H2",
         "link_destination": "R4"
-    }
-  },
-  "routers":{
-    "router1":{
-      "router_id" : "R1",
-    },
-    "router2":{
-      "router_id" : "R2",
-    },
-    "router3":{
-      "router_id" : "R3",
-    },
-    "router4":{
-      "router_id" : "R4",
     }
   },
   "flows": {
@@ -127,8 +137,8 @@
       "flow_id": "F1",
       "flow_src": "H1",
       "flow_dest": "H2",
-      "data_amt": "20",
-      "flow_start": "0.5"
+      "data_amt": 20,
+      "flow_start": 500
     }
   }
 }

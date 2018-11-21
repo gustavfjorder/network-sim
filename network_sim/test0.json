@@ -1,5 +1,7 @@
 {
   "test": "test0",
+  "routers":{
+  },
   "hosts": {
     "host1": {
       "host_id": "H1",
