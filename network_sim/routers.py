@@ -40,8 +40,6 @@ class Router(nodeParent):
             addRoutingTableInfo(packet)
         else:
             self.send(packet)
-        # So that this is a generator.
-        yield self.env.timeout(0)
 
     ### Dynamic routing functions
     # TODO: addToAllCosts. Better way of preventing infinite loop packets

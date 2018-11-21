@@ -45,8 +45,6 @@ class Host:
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             self.link.put(ackPacket)
-        # So that this is a generator.
-        yield self.env.timeout(0)
 
 
     def run(self):
