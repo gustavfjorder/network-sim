@@ -28,12 +28,6 @@
       "link_id": "L5"
     }
   },
-  "link_id": "L1",
-  "link_rate": 10,
-  "link_delay": 10,
-  "link_buffer": 64000,
-  "link_source": "H1",
-  "link_destination": "R1"
   "links": {
     "link0": {
       "link_id": "L0",

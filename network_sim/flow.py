@@ -12,7 +12,7 @@ class Tahoe:
     """
     #Implementation of Go Back N
     """
-    def __init__(self, name, env, source, destination, size):
+    def __init__(self, name, env, source, destination, size, startTime):
         self.id = name
         self.env = env
         self.source = source    # A Host object
@@ -27,7 +27,7 @@ class Tahoe:
         self.RTT = [-1 for i in range(self.num_packets)]
 
         # Start running the flow, delayed
-        self.action = simpy.util.start_delayed(env, self.run(), 1000)
+        self.action = simpy.util.start_delayed(env, self.run(), startTime)
 
     def makePackets(self, size):
         """
