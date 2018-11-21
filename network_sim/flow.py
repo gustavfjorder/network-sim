@@ -1,6 +1,6 @@
-from packets import Packet
+from packets import Data
 from math import ceil
-import simpy
+import simpy, simpy.util
 
 data_size = 1024
 ackTimeOut = 10
@@ -26,8 +26,8 @@ class Tahoe:
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
 
-        # Start running the thing
-        self.action = env.process(self.run())
+        # Start running the flow, delayed
+        self.action = simpy.util.start_delayed(env, self.run(), 1000)
 
     def makePackets(self, size):
         """
@@ -41,7 +41,7 @@ class Tahoe:
         output = []
 
         for i in range(N):
-            output.append(Packet(self.source.id, self.destination, i+1, 'Data', data_size))
+            output.append(Data(self.source.id, self.destination, i+1))
 
         return output
 
@@ -67,6 +67,11 @@ class Tahoe:
         self.put(ackPacket)
         self.action.interrupt()
 
+    # This should be what the host uses to interrupt flow sortaa
+    def ack(self, ackPacket):
+        self.put(ackPacket)
+        self.action.interrupt()
+
     def put(self, packet):
 
         nextExpectedPacketNumber = self.packetProcess(packet)
@@ -81,13 +86,13 @@ class Tahoe:
         else:
             self.setWindow(nextExpectedPacketNumber)
 
-    def send(self, source):
+    def send(self):
         """
         Send all packets in the window.
         """
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
-            source.send(self.packets[i])
+            self.source.send(self.packets[i])
 
     def timeOut(self, time):
         """
@@ -97,7 +102,7 @@ class Tahoe:
 
     def run(self):
         while not self.done:
-            self.send(self.source)
+            self.send()
             try:
                 yield self.env.process(self.timeOut(self.ackTimeOut))
 
