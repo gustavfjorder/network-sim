@@ -2,6 +2,7 @@ from packets import Packet
 from math import ceil
 import simpy
 import math
+from collections import defaultdict
 
 data_size = 1024
 ackTimeOut = 10
@@ -20,7 +21,7 @@ class Tahoe:
         self.source = source    # A Host object
         self.source.addFlow(self)
         self.destination = destination  # A host id (e.g. "H2")
-        
+
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
@@ -72,8 +73,11 @@ class Tahoe:
         self.action.interrupt()
 
     def put(self, packet):
-
+        print("Enter put method:",packet.sequenceNumber)
         nextExpectedPacketNumber = self.packetProcess(packet)
+        print("Finished packet process:",packet.sequenceNumber)
+
+
         print(nextExpectedPacketNumber)
 
         if nextExpectedPacketNumber > self.num_packets:
@@ -132,7 +136,7 @@ class Reno:
 
     """
     def __init__(self, name, env, source, destination, size):
-        
+
         """variables set by arguments"""
         self.id = name
         self.env = env
@@ -157,18 +161,25 @@ class Reno:
         # Start running flow
         self.action = env.process(self.run())
 
+    def masterUpdate(self):
+        if self.phase.phase == "Slow Start":
+            self.slowUpdate()
+        elif self.phase.phase == "CA":
+            self.caUpdate()
+
     def slowUpdate(self):
         assert self.phase.phase == "Slow Start"
 
         if self.phase.threshold and self.phase.threshold <= self.windowSize:
             self.phase = "CA"
-            
+
         else:
             self.windowSize += 1
-            
 
-    def ccUpdate(self):
-        assert self.phase.phase == "CC"
+    def caUpdate(self):
+        assert self.phase.phase == "CA"
+        #assertion statement about threshold
+        self.windowSize += max(1,floor(1/self.windowSize))
 
     def makePackets(self, size):
         """
@@ -203,6 +214,7 @@ class Reno:
         """
         Handle ack from hsot
         """
+        print('hello')
         print("Flow",self.id,"in ack method",ackPacket.ackData["Reno"])
         self.put(ackPacket)
         self.action.interrupt()
@@ -220,8 +232,9 @@ class Reno:
         print(self.id,"got     :",nextExpectedPacketNumber)
         if nextExpectedPacketNumber == min(self.unacknowledged_packets)+1:
             # print("deleting unack'ed packet",self.unacknowledged_packets[0])
+            self.masterUpdate()
             self.unacknowledged_packets.remove(nextExpectedPacketNumber-1)
-            self.windowSize += 1/self.windowSize
+
         elif nextExpectedPacketNumber > self.num_packets:
             print("DONE")
             self.done = 1
