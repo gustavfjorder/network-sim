@@ -12,7 +12,7 @@ class Tahoe:
     """
     #Implementation of Go Back N
     """
-    def __init__(self, name, env, source, destination, size):
+    def __init__(self, name, env, source, destination, size, startTime):
         self.id = name
         self.env = env
         self.source = source    # A Host object
@@ -27,14 +27,19 @@ class Tahoe:
         self.RTT = [-1 for i in range(self.num_packets)]
 
         # Start running the flow, delayed
-        self.action = simpy.util.start_delayed(env, self.run(), 1000)
+        self.action = None
+        simpy.util.start_delayed(self.env, self.startRunning(), startTime)
+
+    def startRunning(self):
+        self.action = self.env.process(self.run())
+        yield self.env.timeout(0)
 
     def makePackets(self, size):
         """
         For a give size of packets, I will intialize an array of Packet
         classes to send.
         """
-        print(size, data_size, type(size), type(data_size))
+
         size = size * 1024 * 1024  # In bytes
         N = ceil(size / data_size)
 
@@ -59,13 +64,6 @@ class Tahoe:
         1 indexed while arrays are 0 indexed.
         """
         self.windowIndex = (start - 1, min(start - 1 + self.windowSize - 1, self.num_packets - 1))
-
-
-
-    # This should be what the host uses to interrupt flow sortaa
-    def ack(self, ackPacket):
-        self.put(ackPacket)
-        self.action.interrupt()
 
     # This should be what the host uses to interrupt flow sortaa
     def ack(self, ackPacket):

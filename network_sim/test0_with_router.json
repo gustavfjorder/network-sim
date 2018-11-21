@@ -56,7 +56,7 @@
       "flow_src": "H1",
       "flow_dest": "H2",
       "data_amt": 20,
-      "flow_start": "1"
+      "flow_start": 1000
     }
   }
 }

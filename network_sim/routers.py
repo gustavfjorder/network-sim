@@ -37,7 +37,7 @@ class Router(nodeParent):
         # Receive a packet from a link
         print(self.id, "receive", packet)
         if (packet.type == "routing"):
-            addRoutingTableInfo(packet)
+            self.addRoutingTableInfo(packet)
         else:
             self.send(packet)
 
@@ -134,27 +134,27 @@ class Router(nodeParent):
                    and fixedCost + cost < minCostsSoFar[to][0]:
                     minCostsSoFar[to] = (fixedCost + cost, nextFixed)
 
+        print(self.id, "allCostsTable: ", self.allCostsTable)
+        print(self.id, "dijkstra: ", reachableNodes)
+
+
         # Ran Dijskra, now extract information by running down the 'previous'
         # path of reachableNodes and change to the link info
         routingTable = {}
         for dest, prev in reachableNodes.items():
             prevPrev = dest
             nextPrev = prev
+            print(self.id, dest, prevPrev, nextPrev)
             while nextPrev != self.id:
                 prevPrev = nextPrev
                 nextPrev = reachableNodes[prevPrev]
+            print(self.id, dest, prevPrev, nextPrev)
             routingTable[dest] = linkFromNode(prevPrev)
 
-        print("routing table: ", routingTable)
+
+        print(self.id, "routing table: ", routingTable)
         # Start using the new routing table.
         self.routingTable = routingTable
-
-        # Reset the routers that exist (allows for changing network... as long as
-        # it doesn't change during an updating period)
-        self.allRouters = set()
-        self.knownNodes = set()
-        # Reset the all costs table to know nothing
-        self.allCostsTable = []
 
     def run_routingInfo(self):
         '''
