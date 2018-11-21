@@ -40,7 +40,7 @@ class Host:
                 if self.lastPacketReceived[packet.source] + 1 == packet.sequenceNumber:
                     self.lastPacketReceived[packet.source] = packet.sequenceNumber
 
-            ackData = {"Tahoe": self.lastPacketReceived[packet.source] + 1}
+            ackData = self.lastPacketReceived[packet.source] + 1
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             self.link.put(ackPacket)
