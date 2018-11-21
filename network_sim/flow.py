@@ -16,9 +16,11 @@ class Tahoe:
     def __init__(self, name, env, source, destination, size):
         self.id = name
         self.env = env
+
         self.source = source    # A Host object
         self.source.addFlow(self)
         self.destination = destination  # A host id (e.g. "H2")
+        
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
@@ -110,13 +112,13 @@ class Tahoe:
 
 class TCPPhase:
     def __init__(self):
-        self.phase == "Slow Start"
-        self.halfW = None
+        self.phase = "Slow Start"
+        self.threshold = None
 
     def setSlow(self):
         assert self.phase == "CA"
         self.phase = "Slow Start"
-        self.halfW = None
+        self.threshold = None #yes?
 
     def setFast(self):
         assert self.phase == "Slow Start"
@@ -130,6 +132,8 @@ class Reno:
 
     """
     def __init__(self, name, env, source, destination, size):
+        
+        """variables set by arguments"""
         self.id = name
         self.env = env
         self.source = source    # A Host object
@@ -138,28 +142,33 @@ class Reno:
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
+
+        """variables not set by arguments"""
         self.dup_dict = {}
-        self.windowSize = 1
-        self.ackTimeOut = 20
-        self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
+
+        self.windowSize = 1 #default as described by slow start
+        self.ackTimeOut = 20 #where did we get this from?
+        self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) #min ensures that our indexes are not larger than the lst length
         self.RTT = [-1 for i in range(self.num_packets)]
         self.unacknowledged_packets = set()
 
         self.phase = TCPPhase()
 
-        # Start running the thing
+        # Start running flow
         self.action = env.process(self.run())
 
     def slowUpdate(self):
         assert self.phase.phase == "Slow Start"
 
-        while self.phase.phase == "Slow Start":
-            if halfW and halfW <= self.windowSize:
-                self.phase = "CA"
-                return
-            else:
-                self.windowSize += 1
-                yield
+        if self.phase.threshold and self.phase.threshold <= self.windowSize:
+            self.phase = "CA"
+            
+        else:
+            self.windowSize += 1
+            
+
+    def ccUpdate(self):
+        assert self.phase.phase == "CC"
 
     def makePackets(self, size):
         """
@@ -253,20 +262,21 @@ class Reno:
 
         try:
             yield self.env.process(self.timeOut(self.ackTimeOut))
-            run(self)
+            self.run()
 
         except simpy.Interrupt:
 
             self.sendAction = env.process(self.sendLoop())
 
             while not self.done:
-                yield self.timeOutFlag
+                yield self.timeOutFlag #if timeout succeeds we continue
+                print("Timeout bitch")
                 self.windowSize = 1
                 self.setWindow(min(self.unacknowledged_packets))
 
 
 
-
+"""
         while not self.done:
             if len(self.unacknowledged_packets) == 0:
                 self.send(self.source)
@@ -276,3 +286,4 @@ class Reno:
                 print("interrupted")
                 pass
         print('Done')
+"""
