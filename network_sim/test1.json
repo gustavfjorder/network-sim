@@ -15,37 +15,97 @@
       "link_id": "L0",
       "link_rate": "12.5",
       "link_delay": "10",
-      "link_buffer": "64"
+      "link_buffer": "64",
+      "link_source": "H1",
+      "link_destination": "R1"
+    },
+    "link0b": {
+      "link_id": "L0",
+      "link_rate": "12.5",
+      "link_delay": "10",
+      "link_buffer": "64",
+      "link_source": "R1",
+      "link_destination": "H1"
     },
     "link1": {
       "link_id": "L1",
       "link_rate": "10",
       "link_delay": "10",
-      "link_buffer": "64"
+      "link_buffer": "64",
+      "link_source": "R1",
+      "link_destination": "R2"
     },
-    "link0": {
+    "link1b": {
+      "link_id": "L1",
+      "link_rate": "10",
+      "link_delay": "10",
+      "link_buffer": "64",
+      "link_source": "R2",
+      "link_destination": "R1"
+    },
+    "link2": {
       "link_id": "L2",
       "link_rate": "10",
       "link_delay": "10",
-      "link_buffer": "64"
+      "link_buffer": "64",
+      "link_source": "R1",
+      "link_destination": "R3"
     },
-    "link0": {
+    "link2b": {
+      "link_id": "L2",
+      "link_rate": "10",
+      "link_delay": "10",
+      "link_buffer": "64",
+      "link_source": "R3",
+      "link_destination": "R1"
+    },
+    "link3": {
       "link_id": "L3",
       "link_rate": "10",
       "link_delay": "10",
-      "link_buffer": "64"
+      "link_buffer": "64",
+      "link_source": "R2",
+      "link_destination": "R4"
     },
-    "link0": {
+    "link3b": {
+      "link_id": "L3",
+      "link_rate": "10",
+      "link_delay": "10",
+      "link_buffer": "64",
+      "link_source": "R4",
+      "link_destination": "R2"
+    },
+    "link4": {
       "link_id": "L4",
       "link_rate": "10",
       "link_delay": "10",
-      "link_buffer": "64"
+      "link_buffer": "64",
+      "link_source": "R3",
+      "link_destination": "R4"
     },
-    "link0": {
+    "link4b": {
+      "link_id": "L4",
+      "link_rate": "10",
+      "link_delay": "10",
+      "link_buffer": "64",
+      "link_source": "R4",
+      "link_destination": "R3"
+    },
+    "link5": {
       "link_id": "L5",
       "link_rate": "12.5",
       "link_delay": "10",
-      "link_buffer": "64"
+      "link_buffer": "64",
+      "link_source": "R4",
+      "link_destination": "H2"
+    },
+    "link5b": {
+        "link_id": "L5",
+        "link_rate": "12.5",
+        "link_delay": "10",
+        "link_buffer": "64",
+        "link_source": "H2",
+        "link_destination": "R4"
     }
   },
   "routers":{
