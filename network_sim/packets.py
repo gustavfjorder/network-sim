@@ -26,7 +26,7 @@ class ACK(Packet):
         Packet.__init__(self,source,destination,'ACK',ack_size)
         self.sequenceNumber = sequenceNumber
         self.ackData = ackData
-        #expecting ackData['Tahoe'] and ackData['Reno']
+        
     def __str__(self):
         return "ACK packet # " +  str(self.sequenceNumber)
 

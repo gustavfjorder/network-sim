@@ -24,12 +24,13 @@ class Host:
 
     def put(self, packet):
         # Receive a packet from link
-
+        print("host.put called")
         # If it's an acknowledgement, pass it to flow
         # Otherwise, send ack for the packet
-        if(packet.type == 'ACK'):
+        if packet.type == 'ACK':
             self.flow.ack(packet)
-        elif(packet.type=='data'):
+        elif packet.type=='data':
+            print('ifyay')
             # Packet is not an Acknowledgement, need to  send an acknowledgement
             # new destination is the source, get this from the flow
 
@@ -41,8 +42,10 @@ class Host:
                     self.lastPacketReceived[packet.source] = packet.sequenceNumber
 
             ackData = self.lastPacketReceived[packet.source] + 1
+            print("barrier1")
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
+            print("barrier2")
             self.link.put(ackPacket)
         # So that this is a generator.
         yield self.env.timeout(0)

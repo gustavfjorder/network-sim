@@ -139,11 +139,11 @@ class Reno:
         self.done = 0
 
         """variables not set by arguments"""
-        self.windowSize = 4 #default as described by slow start
+        self.windowSize = 1 #default as described by slow start
         self.ackTimeOut = 30 #where did we get this from? needs change
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) #min ensures that our indexes are not larger than the lst length
         self.RTT = [-1 for i in range(self.num_packets)]
-        
+
         self.phase = TCPPhase()
 
         # Start running the flow, delayed
@@ -241,6 +241,6 @@ class Reno:
 
             except simpy.Interrupt: # receive ACK
                 pass
-                # print('Got an acknowledgement :)')
+                print('Got an acknowledgement :)')
         print('Done')
 
