@@ -73,7 +73,11 @@ def get_config(env,filename):
         link.source = source
         link.destination = destination
 
+<<<<<<< HEAD
     return (hosts, links, flows, routers)
+=======
+    return (hosts, links, flows)
+>>>>>>> refs/remotes/origin/master
 
 
 

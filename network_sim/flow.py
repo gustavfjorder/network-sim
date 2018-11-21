@@ -15,9 +15,9 @@ class Tahoe:
     def __init__(self, name, env, source, destination, size):
         self.id = name
         self.env = env
-        self.source = source
+        self.source = source    # A Host object
         self.source.addFlow(self)
-        self.destination = destination
+        self.destination = destination  # A host id (e.g. "H2")
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
@@ -26,8 +26,13 @@ class Tahoe:
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
 
+<<<<<<< HEAD
         # Start running the flow, delayed
         self.action = simpy.util.start_delayed(env, self.run(), 1000)
+=======
+        # Start running the thing
+        self.action = env.process(self.run())
+>>>>>>> refs/remotes/origin/master
 
     def makePackets(self, size):
         """
@@ -41,7 +46,11 @@ class Tahoe:
         output = []
 
         for i in range(N):
+<<<<<<< HEAD
             output.append(Data(self.source.id, self.destination, i+1))
+=======
+            output.append(Packet(self.source.id, self.destination, i+1, 'Data', data_size))
+>>>>>>> refs/remotes/origin/master
 
         return output
 
@@ -58,7 +67,14 @@ class Tahoe:
         just a function to deal with indexing since packets are
         1 indexed while arrays are 0 indexed.
         """
-        self.windowIndex = (start - 1, min(nextExpectedPacketNumber - 1 + self.windowSize - 1, self.num_packets - 1))
+        self.windowIndex = (start - 1, min(start - 1 + self.windowSize - 1, self.num_packets - 1))
+
+
+
+    # This should be what the host uses to interrupt flow sortaa
+    def ack(self, ackPacket):
+        self.put(ackPacket)
+        self.action.interrupt()
 
     # This should be what the host uses to interrupt flow sortaa
     def ack(self, ackPacket):
@@ -68,6 +84,7 @@ class Tahoe:
     def put(self, packet):
 
         nextExpectedPacketNumber = self.packetProcess(packet)
+        print(nextExpectedPacketNumber)
 
         if nextExpectedPacketNumber > self.num_packets:
             """
@@ -76,7 +93,7 @@ class Tahoe:
             """
             self.done = 1
         else:
-            setWindow(nextExpectedPacketNumber)
+            self.setWindow(nextExpectedPacketNumber)
 
     def send(self):
         """
@@ -101,3 +118,4 @@ class Tahoe:
             except simpy.Interrupt: # receive ACK
                 pass
                 # print('Got an acknowledgement :)')
+        print('Done')

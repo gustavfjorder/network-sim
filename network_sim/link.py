@@ -23,6 +23,9 @@ class Link:
         self.source = source                  # a host or router
         self.destination = destination        # a host or router
 
+        # Run (add to env)
+        self.action = env.process(self.run())
+
         # An infinite size queue. We internally enforce buffer limits.
         self.buffer = collections.deque()
         self.bufferUsed = 0;           # bytes
@@ -71,6 +74,10 @@ class Link:
         # yield self.env.timeout(self.transmissionDelay(packet)) # Not sure if yield is right
 
 
+    def finishSendingPacket(self, packet):
+        self.destination.put(packet)
+        yield self.env.timeout(0)
+
     def run(self):
         '''
         Sends packets down the link. Runs continuously as a simpy process.
@@ -104,7 +111,7 @@ class Link:
                 # start_delayed is like process, but will start the process
                 # after a time delay.
                 simpy.util.start_delayed(self.env, \
-                                     self.destination.put(packet), \
+                                     self.finishSendingPacket(packet), \
                                      self.propagationDelay)
             # Check again after 0.1 ms.
             yield self.env.timeout(0.1)

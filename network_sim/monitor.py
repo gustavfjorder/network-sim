@@ -82,6 +82,7 @@ class Monitor:
 
     def run(self):
         while True:
+            print("monitor")
             self.checkLinks()
             self.checkFlows()
 

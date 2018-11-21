@@ -1,0 +1,3 @@
+make routers
+	calculate routing table
+and flows
