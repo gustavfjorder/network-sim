@@ -1,4 +1,4 @@
-from packets import Data
+from packets import Data, Packet
 from math import ceil
 import simpy, simpy.util
 import math
@@ -77,9 +77,9 @@ class Tahoe:
         self.action.interrupt()
 
     def put(self, packet):
-        print("Enter put method:",packet.sequenceNumber)
+        #print("Enter put method:",packet.sequenceNumber)
         nextExpectedPacketNumber = self.packetProcess(packet)
-        print("Finished packet process:",packet.sequenceNumber)
+        #print("Finished packet process:",packet.sequenceNumber)
 
 
         print(nextExpectedPacketNumber)
@@ -196,7 +196,7 @@ class Reno:
         packets = []
 
         for i in range(N):
-            packets.append(Packet(self.source.id, self.destination, i+1, 'Data', data_size))
+            packets.append(Data(self.source.id, self.destination, i+1))
         return packets
 
     def packetProcess(self, packet):
@@ -257,7 +257,7 @@ class Reno:
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
             source.send(self.packets[i])
-            assert self.packets[i].sequenceNumber not in self.unacknowledged_packets
+            #assert self.packets[i].sequenceNumber not in self.unacknowledged_packets
             self.unacknowledged_packets.add(self.packets[i].sequenceNumber)
 
 
