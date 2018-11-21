@@ -111,11 +111,24 @@ class Tahoe:
                 # print('Got an acknowledgement :)')
         print('Done')
 
+class TCPPhase:
+    def __init__(self):
+        self.phase = "Slow Start"
+        self.threshold = None
+
+    def setSlow(self):
+        assert self.phase == "CA"
+        self.phase = "Slow Start"
+        self.threshold = None #yes?
+
+    def setFast(self):
+        assert self.phase == "Slow Start"
+        self.phase = "CA"
+
 class Reno:
-    """
-    #Implementation of Go Back N
-    """
-    def __init__(self, name, env, source, destination, size):
+    def __init__(self, name, env, source, destination, size): #need to add delay argument
+        
+        """variables set by arguments"""
         self.id = name
         self.env = env
         self.source = source    # A Host object
@@ -124,13 +137,37 @@ class Reno:
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
-        self.windowSize = 4
-        self.ackTimeOut = 30
-        self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
+
+        """variables not set by arguments"""
+        self.windowSize = 4 #default as described by slow start
+        self.ackTimeOut = 30 #where did we get this from? needs change
+        self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) #min ensures that our indexes are not larger than the lst length
         self.RTT = [-1 for i in range(self.num_packets)]
+        
+        self.phase = TCPPhase()
 
         # Start running the flow, delayed
         self.action = simpy.util.start_delayed(env, self.run(), 1000)
+
+    def masterUpdate(self):
+        if self.phase.phase == "Slow Start":
+            self.slowUpdate()
+        elif self.phase.phase == "CA":
+            self.caUpdate()
+
+    def slowUpdate(self):
+        assert self.phase.phase == "Slow Start"
+
+        if self.phase.threshold and self.phase.threshold <= self.windowSize:
+            self.phase = "CA"
+
+        else:
+            self.windowSize += 1
+
+    def caUpdate(self):
+        assert self.phase.phase == "CA"
+        #assertion statement about threshold
+        self.windowSize += max(1,floor(1/self.windowSize))
 
     def makePackets(self, size):
         """
@@ -153,7 +190,7 @@ class Reno:
         Depending on the algorithm, we process ACK packets differently.
         """
         assert packet.type == 'ACK'
-        return packet.ackData['Tahoe'] # should be an int
+        return packet.ackData['Reno'] # should be an int
 
 
     def setWindow(self, start):
@@ -162,13 +199,6 @@ class Reno:
         1 indexed while arrays are 0 indexed.
         """
         self.windowIndex = (start - 1, min(start - 1 + self.windowSize - 1, self.num_packets - 1))
-
-
-
-    # This should be what the host uses to interrupt flow sortaa
-    def ack(self, ackPacket):
-        self.put(ackPacket)
-        self.action.interrupt()
 
     # This should be what the host uses to interrupt flow sortaa
     def ack(self, ackPacket):
