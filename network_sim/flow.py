@@ -27,7 +27,12 @@ class Tahoe:
         self.RTT = [-1 for i in range(self.num_packets)]
 
         # Start running the flow, delayed
-        self.action = simpy.util.start_delayed(env, self.run(), startTime)
+        self.action = None
+        simpy.util.start_delayed(self.env, self.startRunning(), startTime)
+
+    def startRunning(self):
+        self.action = self.env.process(self.run())
+        yield self.env.timeout(0)
 
     def makePackets(self, size):
         """
@@ -59,13 +64,6 @@ class Tahoe:
         1 indexed while arrays are 0 indexed.
         """
         self.windowIndex = (start - 1, min(start - 1 + self.windowSize - 1, self.num_packets - 1))
-
-
-
-    # This should be what the host uses to interrupt flow sortaa
-    def ack(self, ackPacket):
-        self.put(ackPacket)
-        self.action.interrupt()
 
     # This should be what the host uses to interrupt flow sortaa
     def ack(self, ackPacket):
