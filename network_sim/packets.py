@@ -4,6 +4,8 @@ routing_size = 64  # TODO: Actual number
 
 class Packet:
     def __init__(self,source,destination,string_type,size,debug=None):
+        assert type(source) == str
+        assert type(destination) == str or destination == None
         self.source = source
         self.destination = destination
         self.debug = debug
@@ -34,6 +36,6 @@ class Routing(Packet):
         Packet.__init__(self, source, None, 'routing', routing_size)
         self.data = data
         self.timeSent = timeSent
-        
+
     def __str__(self):
         return "Routing packet from " +  self.source

@@ -31,6 +31,9 @@ class Link:
         self.bitsSent = 0
         self.packetsDropped = 0
 
+        # Start running link
+        self.action = self.env.process(self.run())
+
     def transmissionDelay(self, packet):
         # 8 for byte to bit
         # 10^6 for Mbps to bps
@@ -56,7 +59,7 @@ class Link:
         '''
         print(self.id, "received ", packet, self.env.now)
         if self.bufferUsed + packet.size <= self.bufferSize:
-            print("in buffer ", self.id, " ", packet, self.env.now)
+            print(self.id, "in buffer: ", packet, self.env.now)
             self.buffer.append(packet)
             self.bufferUsed += packet.size
         else: # Drop the packet
@@ -67,7 +70,6 @@ class Link:
         # 8 for byte to bit
         # yield self.env.timeout(self.transmissionDelay(packet)) # Not sure if yield is right
 
-        print("send packet", packet)
 
     def run(self):
         '''
@@ -87,7 +89,7 @@ class Link:
                 # Get packet (popleft is FIFO)
                 packet = self.buffer.popleft()
 
-                print(self.id, "send packet", packet, "to ", self.destination.id)
+                print(self.id, "send", packet, "to", self.destination.id)
 
                 # Wait transmission delay
                 yield self.env.timeout(self.transmissionDelay(packet))

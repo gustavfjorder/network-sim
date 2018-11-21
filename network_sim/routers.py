@@ -9,7 +9,6 @@ class Router(nodeParent):
         super(Router, self).__init__(env, name, links)
         self.type = 'router'
 
-
         # Form "some node": link, where link is the next link to pass to
         # We will need a way to correlate nodes with links.
         self.routingTable = {}
@@ -36,10 +35,13 @@ class Router(nodeParent):
 
     def put(self, packet):
         # Receive a packet from a link
+        print(self.id, "receive", packet)
         if (packet.type == "routing"):
             addRoutingTableInfo(packet)
         else:
             self.send(packet)
+        # So that this is a generator.
+        yield self.env.timeout(0)
 
     ### Dynamic routing functions
     # TODO: addToAllCosts. Better way of preventing infinite loop packets
@@ -48,6 +50,20 @@ class Router(nodeParent):
         Receive a packet with routing table info.
         Called every time a routing packet is received.
         '''
+
+        # Helper function
+        def addToAllCosts(data):
+            '''
+            Takes data in the form (from, {to: cost}), and adds this info to
+            self.allCostsTable.
+            '''
+
+            # Remove old cost data for the source of this packet
+            self.allCostsTable = [i for i in self.allCostsTable if i[0] != data[0]]
+
+            # Add new cost data
+            for to, cost in data[1].items():
+                self.allCostsTable.append((data[0], to, cost))
 
         pckt_source = packet.data[0]
 
@@ -66,7 +82,7 @@ class Router(nodeParent):
 
             # Add the packet to the all costs table and update lists of nodes that
             # exist in the network and nodes that we have costs from.
-            self.addToAllCosts(packet.data)
+            addToAllCosts(packet.data)
 
             # Re-run Dijkstra. TODO: Only when something changes?
             self.createRoutingTable()
@@ -103,13 +119,14 @@ class Router(nodeParent):
 
         # Add self to reachable nodes
         minCostsSoFar[self.id] = (0, self.id)
-
         # Run Dijkstra
-        while reachableNodes.keys() != allNodes:
-            nextFixed = min(minCostsSoFar)
-            fixedCost, fixedPrev = minCostsSoFar[nextFixed]
+        while minCostsSoFar != {}:
+            # Find the smallest-cost reachable node, to update graph with
+            nextFixed, (fixedCost, fixedPrev) = \
+                     min(minCostsSoFar.items(), key = lambda item: item[1][0])
+            # Fix this node's path
             reachableNodes[nextFixed] = fixedPrev
-            # Remove this node from unfound
+            # Remove this node from unfound nodes
             del minCostsSoFar[nextFixed]
 
             for source, to, cost in [i for i in self.allCostsTable if i[0] == nextFixed]:
@@ -122,16 +139,15 @@ class Router(nodeParent):
         # Ran Dijskra, now extract information by running down the 'previous'
         # path of reachableNodes and change to the link info
         routingTable = {}
-        print(reachableNodes)
         for dest, prev in reachableNodes.items():
-            prevPrev = prev
+            prevPrev = dest
             nextPrev = prev
             while nextPrev != self.id:
-                print(prevPrev, nextPrev)
                 prevPrev = nextPrev
                 nextPrev = reachableNodes[prevPrev]
             routingTable[dest] = linkFromNode(prevPrev)
 
+        print("routing table: ", routingTable)
         # Start using the new routing table.
         self.routingTable = routingTable
 
@@ -166,34 +182,18 @@ class Router(nodeParent):
         '''
 
         # Refresh the router's costs
-        # A dictionary of {nodeID: (cost, isHost)}
+        # A dictionary of {nodeID: cost}
         # Could be more efficient
         costs = {}
         for link in self.links:
             cost = 5 * link.bufferUsed / link.bufferSize + link.propagationDelay
-            costs[link.destination.id] = (cost, link.destination.type == 'host')
+            costs[link.destination.id] = cost
 
-        # Data is of form (from, {to: (cost, isHost)}),
+        # Data is of form (from, {to: cost}),
         # where from is self.id.
         data = (self.id, copy(costs))
         packet = Routing(self.id, data, self.env.now)
 
-        # Send the packet to all neighbors
-        for link in self.links:
-            link.put(packet)
-
         # Pretend like we just received this packet to update routing table.
+        # This will "forward" the packet
         self.addRoutingTableInfo(packet)
-
-    def addToAllCosts(self, data):
-        '''
-        Takes data in the form (from, {to: cost}), and adds this info to
-        self.allCostsTable.
-        '''
-
-        # Remove old cost data for the source of this packet
-        self.allCostsTable = [i for i in self.allCostsTable if i[0] != data[0]]
-
-        # Add new cost data
-        for to, (cost, isHost) in data[1].items():
-            self.allCostsTable.append((data[0], to, cost))

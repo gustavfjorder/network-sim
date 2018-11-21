@@ -11,15 +11,7 @@ def runSimulator(input_file):
 
     hosts, links, flows, routers = interface.get_config(env, input_file)
 
-    for link in links:
-        env.process(link.run())
-
-    for flow in flows:
-        simpy.util.start_delayed(env, \
-                             flow.run(), \
-                             5000)
-
-    monitor = Monitor(links, flows)
+    monitor = Monitor(env, links, flows)
 
     # Run the simulation
     env.run(5000)

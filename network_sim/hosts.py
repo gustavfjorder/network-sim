@@ -1,13 +1,14 @@
 from packets import ACK
-from nodeParent import nodeParent
 
-class Host(nodeParent):
-    # inherits from nodeParent
-    def __init__(self,env, name, links):
-        super(Host, self).__init__(env, name, links)
-        self.link = self.links # hosts only have one link
+class Host:
+    def __init__(self,env, name, link):
+        self.env = env
+        self.id = name
+        self.link = link
         self.flow = None
-        self.type = "host"
+
+        # Dictionary because host could receive multiple flows
+        self.lastPacketReceived = {}
 
     def addFlow(self, flow):
         '''
@@ -23,18 +24,28 @@ class Host(nodeParent):
 
     def put(self, packet):
         # Receive a packet from link
-        # Pass it to flow
-        # receive ack OR send ack if it isn't an ack
-        # Ignore routing packets
+
+        # If it's an acknowledgement, pass it to flow
+        # Otherwise, send ack for the packet
         if(packet.type == 'ACK'):
-            ack(self.env, self.flow, packet)
-        elif( packet.type == 'data'):
-            # If Packet is not an Acknowledgement, need to  send an acknowledgement
-            # new destination is the source, get this from the flow\
-            ackData = None  # initalize this later
+            self.flow.ack(packet)
+        elif(packet.type=='data'):
+            # Packet is not an Acknowledgement, need to  send an acknowledgement
+            # new destination is the source, get this from the flow
+
+            # Update most recent packet received
+            if packet.source not in self.lastPacketReceived:
+                self.lastPacketReceived[packet.source] = packet.sequenceNumber
+            else:
+                if self.lastPacketReceived[packet.source] + 1 == packet.sequenceNumber:
+                    self.lastPacketReceived[packet.source] = packet.sequenceNumber
+
+            ackData = {"Tahoe": self.lastPacketReceived[packet.source] + 1}
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
-            self.flow.put(ackPacket)
+            self.link.put(ackPacket)
+        # So that this is a generator.
+        yield self.env.timeout(0)
 
 
     def run(self):
@@ -43,13 +54,3 @@ class Host(nodeParent):
             if(self.flow):
                 # send a packet
                 self.flow.send(self)
-
-    # This should be what the host uses to interrupt flow sortaa
-    def ack(flow, ackPacket):
-        flow.put(ackPacket)
-        flow.action.interrupt()
-
-
-
-
-# host should call recieve in Flow
