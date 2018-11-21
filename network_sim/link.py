@@ -60,7 +60,7 @@ class Link:
         Put into the buffer (run deals with transmission delay, so do this
         first) if buffer not full. Otherwise, drop the packet.
         '''
-        print(self.id, "received ", packet, self.env.now)
+
         if self.bufferUsed + packet.size <= self.bufferSize:
             print(self.id, "in buffer: ", packet, self.env.now)
             self.buffer.append(packet)
@@ -96,7 +96,7 @@ class Link:
                 # Get packet (popleft is FIFO)
                 packet = self.buffer.popleft()
 
-                print(self.id, "send", packet, "to", self.destination.id)
+                print(self.id, "transmitting", packet, "to", self.destination.id)
 
                 # Wait transmission delay
                 yield self.env.timeout(self.transmissionDelay(packet))
@@ -105,6 +105,8 @@ class Link:
 
                 # Monitoring
                 self.bitsSent += packet.size
+
+                print(self.id, "sending", packet, "to", self.destination.id)
 
                 # Pass to router after propagationDelay time (but don't
                 # wait).

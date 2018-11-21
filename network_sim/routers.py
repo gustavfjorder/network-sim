@@ -147,7 +147,7 @@ class Router(nodeParent):
                 nextPrev = reachableNodes[prevPrev]
             routingTable[dest] = linkFromNode(prevPrev)
 
-        print("routing table: ", routingTable)
+        print(self.id, "routing table: ", routingTable)
         # Start using the new routing table.
         self.routingTable = routingTable
 

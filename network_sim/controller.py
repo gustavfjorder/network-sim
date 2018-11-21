@@ -14,7 +14,7 @@ def runSimulator(input_file):
     monitor = Monitor(env, links, flows)
 
     # Run the simulation
-    env.run(5000)
+    env.run(1000)
 
     # Graph the results
     # show_results(monitor)
