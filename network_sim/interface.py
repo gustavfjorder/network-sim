@@ -37,6 +37,7 @@ def get_config(env,filename):
         host_info = test_data['hosts'][host]
         link = next((l for l in links if l.id == test_data['hosts'][host]['link_id'] \
                                     and l.source == host_info['host_id']), None)
+        assert link != None
         h = Host(env, host_info['host_id'], link)
         hosts.append(h)
 
@@ -60,6 +61,7 @@ def get_config(env,filename):
         links_list = router_info['links']
         router_links = [l for l in links if l.id in links_list \
                                     and l.source == router_info['router_id']]
+        assert len(router_links) == len(router_info['links'])
         r = Router(env, id, router_links)
 
         routers.append(r)

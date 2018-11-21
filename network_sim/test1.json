@@ -21,7 +21,7 @@
   "hosts": {
     "host1": {
       "host_id": "H1",
-      "link_id": "L1"
+      "link_id": "L0"
     },
     "host2": {
       "host_id": "H2",
