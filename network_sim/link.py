@@ -9,7 +9,8 @@ class Link:
     Link.run is a simpy process that will constantly run.
     '''
 
-    def __init__(self, env, id, delay, bufferSize, rate, source, destination):
+    def __init__(self, env, id, delay, bufferSize, rate, source, destination, \
+                 debug):
         ''' Initializes link '''
 
         # Passed in attributes
@@ -18,6 +19,7 @@ class Link:
         self.rate = rate               # Mbps
         self.propagationDelay = delay  # ms
         self.bufferSize = bufferSize   # bytes
+        self.debug = debug             # Whether or not to print
 
         # Objects representing source/dest
         self.source = source                  # a host or router
@@ -62,11 +64,13 @@ class Link:
         '''
 
         if self.bufferUsed + packet.size <= self.bufferSize:
-            print(self.id, "in buffer: ", packet, self.env.now)
+            if self.debug:
+                print(self.id, "in buffer: ", packet, self.env.now)
             self.buffer.append(packet)
             self.bufferUsed += packet.size
         else: # Drop the packet
-            print(self.id, " dropped, ", packet)
+            if self.debug:
+                print(self.id, " dropped, ", packet)
             self.packetsDropped += 1
 
         # Wait transmissionTime of the packet, to hold back source.
@@ -96,7 +100,8 @@ class Link:
                 # Get packet (popleft is FIFO)
                 packet = self.buffer.popleft()
 
-                print(self.id, "transmitting", packet, "to", self.destination.id)
+                if self.debug:
+                    print(self.id, "transmitting", packet, "to", self.destination.id)
 
                 # Wait transmission delay
                 yield self.env.timeout(self.transmissionDelay(packet))
@@ -106,7 +111,8 @@ class Link:
                 # Monitoring
                 self.bitsSent += packet.size
 
-                print(self.id, "sending", packet, "to", self.destination.id)
+                if self.debug:
+                    print(self.id, "sending", packet, "to", self.destination.id)
 
                 # Pass to router after propagationDelay time (but don't
                 # wait).

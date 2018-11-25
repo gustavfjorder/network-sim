@@ -5,7 +5,7 @@ from routers import Router
 import json
 
 # Takes filename (json) file and outputs a list of hosts, routers, links, flows.
-def get_config(env,filename):
+def get_config(env,filename, debug):
     try:
         with open(filename) as f:
             test_data = json.load(f)
@@ -29,7 +29,8 @@ def get_config(env,filename):
         link_info['link_buffer'], \
         link_info['link_rate'], \
         link_info['link_source'], \
-        link_info['link_destination'])
+        link_info['link_destination'],
+        debug)
         links.append(l)
 
     # create hosts
@@ -38,7 +39,7 @@ def get_config(env,filename):
         link = next((l for l in links if l.id == test_data['hosts'][host]['link_id'] \
                                     and l.source == host_info['host_id']), None)
         assert link != None
-        h = Host(env, host_info['host_id'], link)
+        h = Host(env, host_info['host_id'], link, debug)
         hosts.append(h)
 
     # create flow objects
@@ -62,7 +63,7 @@ def get_config(env,filename):
         router_links = [l for l in links if l.id in links_list \
                                     and l.source == router_info['router_id']]
         assert len(router_links) == len(router_info['links'])
-        r = Router(env, id, router_links)
+        r = Router(env, id, router_links, debug)
 
         routers.append(r)
 

@@ -5,13 +5,16 @@ from math import inf
 
 class Router(nodeParent):
     #inherits from nodeParent
-    def __init__(self, env, name, links):
+    def __init__(self, env, name, links, debug):
         super(Router, self).__init__(env, name, links)
         self.type = 'router'
 
         # Form "some node": link, where link is the next link to pass to
         # We will need a way to correlate nodes with links.
         self.routingTable = {}
+
+        # Whether or not to output what's happening
+        self.debug =  debug
 
         ## For dynamic routing
 
@@ -35,7 +38,8 @@ class Router(nodeParent):
 
     def put(self, packet):
         # Receive a packet from a link
-        print(self.id, "receive", packet)
+        if self.debug:
+            print(self.id, "receive", packet)
         if (packet.type == "routing"):
             self.addRoutingTableInfo(packet)
         else:
@@ -134,8 +138,8 @@ class Router(nodeParent):
                    and fixedCost + cost < minCostsSoFar[to][0]:
                     minCostsSoFar[to] = (fixedCost + cost, nextFixed)
 
-        print(self.id, "allCostsTable: ", self.allCostsTable)
-        print(self.id, "dijkstra: ", reachableNodes)
+        if self.debug:
+            print(self.env.now, self.id, "dijkstra: ", reachableNodes)
 
 
         # Ran Dijskra, now extract information by running down the 'previous'
@@ -144,15 +148,13 @@ class Router(nodeParent):
         for dest, prev in reachableNodes.items():
             prevPrev = dest
             nextPrev = prev
-            print(self.id, dest, prevPrev, nextPrev)
             while nextPrev != self.id:
                 prevPrev = nextPrev
                 nextPrev = reachableNodes[prevPrev]
-            print(self.id, dest, prevPrev, nextPrev)
             routingTable[dest] = linkFromNode(prevPrev)
 
 
-        print(self.id, "routing table: ", routingTable)
+
         # Start using the new routing table.
         self.routingTable = routingTable
 
@@ -163,9 +165,8 @@ class Router(nodeParent):
         Only one router in the network needs to run this, though all will run it.
         '''
         while True:
-            # Initialize a new routing cycle, if another router hasn't already
-            if not self.allCostsTable:
-                self.sendMyInfo()
+            # Re-send my cost info/update my table
+            self.sendMyInfo()
 
             # Wait some time
             yield self.env.timeout(self.refreshRoutingTime)
@@ -184,13 +185,16 @@ class Router(nodeParent):
         # Could be more efficient
         costs = {}
         for link in self.links:
-            cost = 5 * link.bufferUsed / link.bufferSize + link.propagationDelay
+            # TODO: Uncomment
+            # cost = 5 * link.bufferUsed / link.bufferSize + link.propagationDelay
+            cost = 5 * link.bitsSent + link.propagationDelay
             costs[link.destination.id] = cost
 
         # Data is of form (from, {to: cost}),
         # where from is self.id.
         data = (self.id, copy(costs))
         packet = Routing(self.id, data, self.env.now)
+
 
         # Pretend like we just received this packet to update routing table.
         # This will "forward" the packet
