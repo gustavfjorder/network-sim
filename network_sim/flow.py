@@ -55,7 +55,7 @@ class Tahoe:
         Depending on the algorithm, we process ACK packets differently.
         """
         assert packet.type == 'ACK'
-        return packet.ackData['Tahoe'] # should be an int
+        return packet.ackData # should be an int
 
 
     def setWindow(self, start):
