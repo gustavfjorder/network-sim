@@ -9,15 +9,21 @@ def runSimulator(input_file):
 
     env = simpy.Environment()
 
-    hosts, links, flows, routers = interface.get_config(env, input_file)
+    debug = False
+
+    hosts, links, flows, routers = interface.get_config(env, input_file, debug)
 
     monitor = Monitor(env, links, flows)
 
     # Run the simulation
-    env.run(5000)
+    env.run(10 * 1000)
 
     # Graph the results
+<<<<<<< HEAD
     #show_results(monitor)
+=======
+    # show_results(monitor)
+>>>>>>> refs/remotes/origin/master
 
     # Export the resutls to output.xlsx
     export_results(monitor)

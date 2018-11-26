@@ -1,11 +1,14 @@
 from packets import ACK
 
 class Host:
-    def __init__(self,env, name, link):
+    def __init__(self,env, name, link, debug):
         self.env = env
         self.id = name
         self.link = link
         self.flow = None
+
+        # Whether or not to output what's happening
+        self.debug = debug
 
         # Dictionary because host could receive multiple flows
         self.lastPacketReceived = {}
@@ -24,8 +27,8 @@ class Host:
 
     def put(self, packet):
         # Receive a packet from link
-
-        print(self.id, "receive ", packet)
+        if self.debug:
+            print(self.id, "receive ", packet)
         # If it's an acknowledgement, pass it to flow
         # Otherwise, send ack for the packet
         if packet.type == 'ACK':
@@ -43,7 +46,10 @@ class Host:
                     self.lastPacketReceived[packet.source] = packet.sequenceNumber
 
             ackData = self.lastPacketReceived[packet.source] + 1
+<<<<<<< HEAD
             print("barrier1")
+=======
+>>>>>>> refs/remotes/origin/master
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             print("barrier2")

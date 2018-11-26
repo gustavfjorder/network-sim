@@ -21,7 +21,7 @@ class Tahoe:
         self.packets = self.makePackets(size) # expecting a indexable list as implementation
         self.num_packets = len(self.packets)
         self.done = 0
-        self.windowSize = 4
+        self.windowSize = 2
         self.ackTimeOut = 30
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
@@ -55,7 +55,6 @@ class Tahoe:
         Depending on the algorithm, we process ACK packets differently.
         """
         assert packet.type == 'ACK'
-        return packet.ackData['Tahoe'] # should be an int
 
 
     def setWindow(self, start):
@@ -73,7 +72,6 @@ class Tahoe:
     def put(self, packet):
 
         nextExpectedPacketNumber = self.packetProcess(packet)
-        print(nextExpectedPacketNumber)
 
         if nextExpectedPacketNumber > self.num_packets:
             """
