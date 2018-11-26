@@ -26,12 +26,21 @@ class Tahoe:
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
 
-        # Start running the flow, delayed
-        self.action = None
-        simpy.util.start_delayed(self.env, self.startRunning(), startTime)
+        # For timeouts
+        self.ackAction = None
 
-    def startRunning(self):
-        self.action = self.env.process(self.run())
+        # Start running the flow, delayed
+        simpy.util.start_delayed(self.env, self.run(), startTime)
+
+    def run(self):
+        """Initialize running the flow"""
+
+        # Send packets
+        self.env.process(self.sendLoop())
+
+        # Check for timeout
+        self.ackAction = self.env.process(self.checkTimeout())
+
         yield self.env.timeout(0)
 
     def makePackets(self, size):
@@ -67,18 +76,25 @@ class Tahoe:
 
     # This should be what the host uses to interrupt flow sortaa
     def ack(self, ackPacket):
+        """
+        Handle ack from hsot
+        """
+        print('hello')
+        print("Flow",self.id,"in ack method",ackPacket.ackData)
         self.put(ackPacket)
-        self.action.interrupt()
+
+        # Reset the timeout
+        self.ackTimer()
+
 
     def put(self, packet):
 
         nextExpectedPacketNumber = self.packetProcess(packet)
 
         if nextExpectedPacketNumber > self.num_packets:
-            """
-            If my ACK packet is larger than the number of packets I
-            was sending, I am done.
-            """
+            # If my ACK packet is larger than the number of packets I
+            # was sending, I am done.
+
             self.done = 1
         else:
             self.setWindow(nextExpectedPacketNumber)
@@ -90,20 +106,32 @@ class Tahoe:
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
             self.source.send(self.packets[i])
+            pass
 
-    def timeOut(self, time):
-        """
-        Time passing function
-        """
-        yield self.env.timeout(time)
+    def ackTimer(self):
+        '''
+        Resets timer
+        '''
+        self.ackAction.interrupt()
 
-    def run(self):
+    def sendLoop(self):
         while not self.done:
+            #if len(self.unacknowledged_packets) <= self.windowSize:
             self.send()
-            try:
-                yield self.env.process(self.timeOut(self.ackTimeOut))
+            yield self.env.timeout(1)
+        print("done")
 
-            except simpy.Interrupt: # receive ACK
+    def checkTimeout(self):
+        '''
+        Constantly runs and if timeout finishes, will trigger what is needed.
+        Interrupt this to reset timer
+        '''
+        while not self.done:
+            try:
+                yield self.env.timeout(self.ackTimeOut)
+                print("Timeout happened", self.env.now)
+                #self.windowSize = 1
+                #self.setWindow(min(self.unacknowledged_packets))
+            except simpy.Interrupt:
+                # Go back to the beginning of the loop (reset timer)
                 pass
-                # print('Got an acknowledgement :)')
-        print('Done')
