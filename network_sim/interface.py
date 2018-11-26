@@ -12,7 +12,7 @@ def get_config(env,filename, debug):
     except FileNotFoundError as error:
         print("File not found")
         test_data = None
-        return 
+        return
 
     hosts = []
     routers = []

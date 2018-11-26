@@ -9,7 +9,7 @@ def runSimulator(input_file):
 
     env = simpy.Environment()
 
-    debug = False
+    debug = True
 
     hosts, links, flows, routers = interface.get_config(env, input_file, debug)
 
@@ -19,7 +19,7 @@ def runSimulator(input_file):
     env.run(10 * 1000)
 
     # Graph the results
-    # show_results(monitor)
+    show_results(monitor)
 
     # Export the resutls to output.xlsx
     export_results(monitor)
