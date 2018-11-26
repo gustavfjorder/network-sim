@@ -19,7 +19,7 @@ def runSimulator(input_file):
     env.run(10 * 1000)
 
     # Graph the results
-    # show_results(monitor)
+    show_results(monitor)
 
     # Export the resutls to output.xlsx
     export_results(monitor)

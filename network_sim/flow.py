@@ -56,6 +56,8 @@ class Tahoe:
         """
         assert packet.type == 'ACK'
 
+        return packet.ackData
+
 
     def setWindow(self, start):
         """
@@ -122,8 +124,8 @@ class TCPPhase:
         self.phase = "CA"
 
 class Reno:
-    def __init__(self, name, env, source, destination, size): #need to add delay argument
-        
+    def __init__(self, name, env, source, destination, size, startTime):
+
         """variables set by arguments"""
         self.id = name
         self.env = env
@@ -143,7 +145,12 @@ class Reno:
         self.phase = TCPPhase()
 
         # Start running the flow, delayed
-        self.action = simpy.util.start_delayed(env, self.run(), 1000)
+        self.action = None
+        simpy.util.start_delayed(self.env, self.startRunning(), startTime)
+
+    def startRunning(self):
+        self.action = self.env.process(self.run())
+        yield self.env.timeout(0)
 
     def masterUpdate(self):
         if self.phase.phase == "Slow Start":
@@ -186,7 +193,7 @@ class Reno:
         Depending on the algorithm, we process ACK packets differently.
         """
         assert packet.type == 'ACK'
-        return packet.ackData['Reno'] # should be an int
+        return packet.ackData # should be an int
 
 
     def setWindow(self, start):
@@ -239,4 +246,3 @@ class Reno:
                 pass
                 print('Got an acknowledgement :)')
         print('Done')
-
