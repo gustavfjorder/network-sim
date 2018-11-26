@@ -26,14 +26,21 @@ class Tahoe:
         self.windowIndex = (0, min(self.windowSize - 1, self.num_packets - 1)) # no zero indexing here
         self.RTT = [-1 for i in range(self.num_packets)]
 
+        # For timeouts
         self.ackAction = None
-        self.timeOutFlag = self.env.event()
-        # Start running the flow, delayed
-        self.action = None
-        simpy.util.start_delayed(self.env, self.startRunning(), startTime)
 
-    def startRunning(self):
-        self.action = self.env.process(self.run())
+        # Start running the flow, delayed
+        simpy.util.start_delayed(self.env, self.run(), startTime)
+
+    def run(self):
+        """Initialize running the flow"""
+
+        # Send packets
+        self.env.process(self.sendLoop())
+
+        # Check for timeout
+        self.ackAction = self.env.process(self.checkTimeout())
+
         yield self.env.timeout(0)
 
     def makePackets(self, size):
@@ -75,11 +82,9 @@ class Tahoe:
         print('hello')
         print("Flow",self.id,"in ack method",ackPacket.ackData)
         self.put(ackPacket)
-        
-        if self.ackAction:
-            self.ackAction.interrupt()
 
-        self.ackAction = self.env.process(self.ackTimer())
+        # Reset the timeout
+        self.ackTimer()
 
 
     def put(self, packet):
@@ -88,10 +93,9 @@ class Tahoe:
         print(nextExpectedPacketNumber)
 
         if nextExpectedPacketNumber > self.num_packets:
-            """
-            If my ACK packet is larger than the number of packets I
-            was sending, I am done.
-            """
+            # If my ACK packet is larger than the number of packets I
+            # was sending, I am done.
+
             self.done = 1
         else:
             self.setWindow(nextExpectedPacketNumber)
@@ -103,46 +107,32 @@ class Tahoe:
         start, end = self.windowIndex[0], self.windowIndex[1]
         for i in range(start, end + 1):
             self.source.send(self.packets[i])
+            pass
 
     def ackTimer(self):
-        self.timeOutFlag = self.env.event()
-
-        try:
-            yield self.env.process(self.timeOut(self.ackTimeOut))
-            self.timeOutFlag.succeed()
-        except simpy.Interrupt:
-            print("timer interrupted")
-            
-        
-
-    def timeOut(self, time):
-        """
-        Time passing function
-        """
-        yield self.env.timeout(time)
+        '''
+        Resets timer
+        '''
+        self.ackAction.interrupt()
 
     def sendLoop(self):
         while not self.done:
-            if len(self.unacknowledged_packets) <= self.windowSize:
-                self.send()
+            #if len(self.unacknowledged_packets) <= self.windowSize:
+            self.send()
+            yield self.env.timeout(1)
         print("done")
 
-
-    def run(self):
-        """Everything till the while loop is just for the first packet sent"""
-        self.send()
-
-        try:
-            yield self.env.process(self.timeOut(self.ackTimeOut))
-            self.run()
-
-        except simpy.Interrupt:
-
-            self.sendAction = env.process(self.sendLoop())
-
-            while not self.done:
-                yield self.timeOutFlag #if timeout succeeds we continue
-                print("Timeout bitch")
+    def checkTimeout(self):
+        '''
+        Constantly runs and if timeout finishes, will trigger what is needed.
+        Interrupt this to reset timer
+        '''
+        while not self.done:
+            try:
+                yield self.env.timeout(self.ackTimeOut)
+                print("Timeout happened", self.env.now)
                 #self.windowSize = 1
                 #self.setWindow(min(self.unacknowledged_packets))
-
+            except simpy.Interrupt:
+                # Go back to the beginning of the loop (reset timer)
+                pass
