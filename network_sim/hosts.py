@@ -46,10 +46,7 @@ class Host:
                     self.lastPacketReceived[packet.source] = packet.sequenceNumber
 
             ackData = self.lastPacketReceived[packet.source] + 1
-<<<<<<< HEAD
             print("barrier1")
-=======
->>>>>>> refs/remotes/origin/master
             ackPacket = ACK(packet.destination, packet.source, \
                 packet.sequenceNumber, ackData )
             print("barrier2")

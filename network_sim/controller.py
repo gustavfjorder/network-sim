@@ -19,11 +19,7 @@ def runSimulator(input_file):
     env.run(10 * 1000)
 
     # Graph the results
-<<<<<<< HEAD
-    #show_results(monitor)
-=======
     # show_results(monitor)
->>>>>>> refs/remotes/origin/master
 
     # Export the resutls to output.xlsx
     export_results(monitor)

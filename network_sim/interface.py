@@ -50,7 +50,7 @@ def get_config(env,filename, debug):
         id = flow_info['flow_id']
         source = next((h for h in hosts if h.id == flow_info['flow_src']), None)
 
-        f = Reno(id, env, source, flow_info['flow_dest'], flow_info['data_amt'], flow_info['flow_start'])
+        f = Tahoe(id, env, source, flow_info['flow_dest'], flow_info['data_amt'], flow_info['flow_start'])
 
         flows.append(f)
 
